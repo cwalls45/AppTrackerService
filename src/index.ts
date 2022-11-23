@@ -1,5 +1,6 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
+import router from './router/router';
 
 dotenv.config();
 
@@ -9,8 +10,19 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Root endpoint');
+// Route Handlers
+app.use('/api', router);
+
+//Default Error Handler
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    const defaultErr = {
+        log: 'Express error handler caught unknown middleware error',
+        status: 400,
+        message: { err: 'An error occurred' },
+    };
+    const errorObj = Object.assign({}, defaultErr, err);
+    console.log(errorObj.log);
+    return res.status(errorObj.status).json(errorObj.message);
 });
 
 app.listen(port, () => {
