@@ -9,6 +9,7 @@ const createApplication = async (req: Request, res: Response) => {
         const { application } = req.body;
         const { value, error } = schema.validate(application);
         if (error) {
+            console.log(`ERROR: ${error}`)
             throw new Error(`Unable to validate properties of application: ${error}`);
             res.status(404).send(error);
         };
