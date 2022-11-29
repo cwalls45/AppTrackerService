@@ -1,0 +1,21 @@
+{
+    "application": {
+        "dateOfApplication": "11/28/2022",
+        "areaOfApplication": [
+            "Rough"
+        ],
+        "totalAreaOfApp": "10",
+        "totalAreaOfAppUnit": "Sq. ft.",
+        "targetPests": [
+            "Dollar Spot"
+        ],
+        "chemicals": [
+            {
+                "chemicalCompany": "Winfield",
+                "chemicalName": "Torque",
+                "amount": "4",
+                "units": "gallon(s)"
+            }
+        ]
+    }
+}
