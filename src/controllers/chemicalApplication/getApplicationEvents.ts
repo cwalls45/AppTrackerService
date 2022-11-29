@@ -3,7 +3,7 @@ import { applicationEventsTestData } from '../../testData/getApplicationEventsTe
 
 const getApplicationEvents = async (req: Request, res: Response) => {
     try {
-        //get application events once database is set up
+        //TODO: get application events once database is set up
         const response = applicationEventsTestData
         res.locals.events = response;
         res.send(res.locals.events);
