@@ -10,7 +10,7 @@ const createApplication = async (req: Request, res: Response) => {
         console.log(application)
         validate(application);
         res.locals.application = formatChemicalApplicationToApplicationEvent(application);
-        //TODO: add to database once set up
+        //TODO: add application event and application details to database once set up
         res.send(res.locals.application);
     } catch (error) {
         console.log(error);
