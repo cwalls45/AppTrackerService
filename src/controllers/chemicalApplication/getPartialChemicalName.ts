@@ -8,17 +8,18 @@ const getByPartialChemicalName = async (req: Request, res: Response) => {
         const chemical = req.params.chemical
         const response = await axios.get(`${EPAEndpoint.EPA_PARTIAL_PRODUCT_NAME}/${chemical}`);
         const chemicalList = response.data.items as IEPAPartialProductName[];
-        const activeChemicalList: IProductSummary[] =
+        const formattedChemicalList: IProductSummary[] =
             chemicalList
                 .map((chemical) => ({
                     epaRegistrationNumber: chemical.eparegno,
                     productName: chemical.productname,
                     productStatus: chemical.product_status
                 }));
-        res.send({ chemicals: activeChemicalList });
+        console.log(chemicalList)
+        res.send({ chemicals: formattedChemicalList });
     } catch (error) {
         console.log(error);
-        res.status(400).send({ error: `There was an error fetching chemical by partical name: ${req.params.chemical}` });
+        res.status(400).send({ error: `There was an error fetching chemical by partial chemical name: ${req.params.chemical}` });
     }
 };
 
