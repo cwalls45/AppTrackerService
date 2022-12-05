@@ -15,7 +15,6 @@ const getByPartialChemicalName = async (req: Request, res: Response) => {
                     productName: chemical.productname,
                     productStatus: chemical.product_status
                 }));
-        console.log(chemicalList)
         res.send({ chemicals: formattedChemicalList });
     } catch (error) {
         console.log(error);
