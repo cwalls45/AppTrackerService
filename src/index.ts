@@ -1,5 +1,4 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
-// import serverless from 'serverless-http';
 import dotenv from 'dotenv';
 import router from './router/router';
 const serverless = require('serverless-http');
