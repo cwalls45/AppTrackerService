@@ -1,6 +1,8 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
+// import serverless from 'serverless-http';
 import dotenv from 'dotenv';
 import router from './router/router';
+const serverless = require('serverless-http');
 const cors = require('cors');
 
 dotenv.config();
@@ -31,6 +33,4 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     return res.status(errorObj.status).json(errorObj.message);
 });
 
-app.listen(port, () => {
-    console.log(`Server is running at https://localhost:${port}`);
-});
+module.exports.handler = serverless(app);
