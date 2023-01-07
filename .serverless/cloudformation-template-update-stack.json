@@ -161,7 +161,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/TurfTrackerService/dev/1672591004327-2023-01-01T16:36:44.327Z/TurfTrackerService.zip"
+          "S3Key": "serverless/TurfTrackerService/dev/1673060226249-2023-01-07T02:57:06.249Z/TurfTrackerService.zip"
         },
         "Handler": "src/index.handler",
         "Runtime": "nodejs12.x",
@@ -179,14 +179,14 @@
         "ApiLogGroup"
       ]
     },
-    "ApiLambdaVersion0PiSCkf45i5zbenLNjTMDLwLYAVNLXek07jJeFKFs": {
+    "ApiLambdaVersionGIURYWEmyWbLay8llAQo5wQMZJvnARaFFL8xEEM": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "y5WMbCFyporTCi/DyOLQRnBlYKIJK1RM8CaNdgLW0v8="
+        "CodeSha256": "pPJ0iJ41eUHvGBy5TenTn+gIMnVybSaLEEiYlbEq/Mw="
       }
     },
     "HttpApi": {
@@ -297,7 +297,7 @@
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersion0PiSCkf45i5zbenLNjTMDLwLYAVNLXek07jJeFKFs"
+        "Ref": "ApiLambdaVersionGIURYWEmyWbLay8llAQo5wQMZJvnARaFFL8xEEM"
       },
       "Export": {
         "Name": "sls-TurfTrackerService-dev-ApiLambdaFunctionQualifiedArn"
