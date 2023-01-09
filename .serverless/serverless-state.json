@@ -191,7 +191,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/TurfTrackerService/dev/1673151932328-2023-01-08T04:25:32.328Z/TurfTrackerService.zip"
+                "S3Key": "serverless/TurfTrackerService/dev/1673232391439-2023-01-09T02:46:31.439Z/TurfTrackerService.zip"
               },
               "Handler": "src/index.handler",
               "Runtime": "nodejs12.x",
@@ -209,14 +209,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionAaeVfVopBScvaf2uoh48RegwG2dBuBNdqSzTuO3R4": {
+          "ApiLambdaVersionxvYW2TgEzKFZIUAeJNmjETsVoB78nFvapRRswtHM4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "y5aDkI01zQqcNOe8vYVd1CUvIZ9aLy6+TaIfblBKbjw="
+              "CodeSha256": "pkfSMggA7gIrQ4aObSeZDiig/9oTfnQ8caqSv4pKWtc="
             }
           },
           "HttpApi": {
@@ -351,7 +351,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionAaeVfVopBScvaf2uoh48RegwG2dBuBNdqSzTuO3R4"
+              "Ref": "ApiLambdaVersionxvYW2TgEzKFZIUAeJNmjETsVoB78nFvapRRswtHM4"
             },
             "Export": {
               "Name": "sls-TurfTrackerService-dev-ApiLambdaFunctionQualifiedArn"
@@ -478,6 +478,7 @@
       "vpc": {}
     },
     "plugins": [
+      "serverless-dynamodb-local",
       "serverless-plugin-typescript",
       "serverless-offline"
     ],
@@ -503,7 +504,7 @@
         "timeout": 6,
         "runtime": "nodejs12.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionAaeVfVopBScvaf2uoh48RegwG2dBuBNdqSzTuO3R4"
+        "versionLogicalId": "ApiLambdaVersionxvYW2TgEzKFZIUAeJNmjETsVoB78nFvapRRswtHM4"
       }
     },
     "resources": {
@@ -560,7 +561,7 @@
     "artifact": "C:\\Users\\cwall\\OneDrive\\Desktop\\AppTrackerService\\.build\\.serverless\\TurfTrackerService.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/TurfTrackerService/dev/1673151932328-2023-01-08T04:25:32.328Z",
+    "artifactDirectoryName": "serverless/TurfTrackerService/dev/1673232391439-2023-01-09T02:46:31.439Z",
     "artifact": "TurfTrackerService.zip"
   }
 }

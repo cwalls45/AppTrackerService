@@ -47,5 +47,6 @@ resources:
 
 # Serverless plugins
 plugins:
+  - serverless-dynamodb-local
   - serverless-plugin-typescript
   - serverless-offline

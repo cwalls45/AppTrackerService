@@ -1,12 +1,16 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import router from './router/router';
+import AWS from 'aws-sdk';
 const serverless = require('serverless-http');
 const cors = require('cors');
 
 dotenv.config();
 
 const app: Express = express();
+
+export const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
 
 const corsOptions = {
     origin: 'http://localhost:8080',

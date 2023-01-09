@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import Joi from 'joi';
+import { v4 as uuidv4 } from 'uuid';
+import { dynamoDb } from '../../index';
 import { ChemicalApplicationFormProperty, ChemicalProperties, IChemicalApplicationForm } from '../../entities/chemicalApplication';
 import { formatChemicalApplicationToApplicationEvent } from '../../utils/formatChemicalAppToEvent';
 
@@ -11,6 +13,18 @@ const createApplication = async (req: Request, res: Response) => {
         validate(application);
         res.locals.application = formatChemicalApplicationToApplicationEvent(application);
         //TODO: add application event and application details to database once set up
+        const applicationId = uuidv4();
+        const params = {
+            Item: {
+                pk: `application:${applicationId}`,
+                sk: `application:${application.dateOfApplication}:${applicationId}`,
+                data: application
+            },
+            TableName: 'TurfTracker-dev',
+
+        }
+        const response = await dynamoDb.put(params).promise()
+
         res.send(res.locals.application);
     } catch (error) {
         console.log(error);
