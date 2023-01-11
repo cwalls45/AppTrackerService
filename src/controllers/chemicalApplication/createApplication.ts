@@ -1,46 +1,29 @@
 import { Request, Response } from 'express';
 import Joi from 'joi';
 import { v4 as uuidv4 } from 'uuid';
-import { dynamoDb } from '../../index';
 import { ChemicalApplicationFormProperty, ChemicalProperties, IChemicalApplicationForm } from '../../entities/chemicalApplication';
 import { formatChemicalApplicationToApplicationEvent } from '../../utils/formatChemicalAppToEvent';
 import dayjs from 'dayjs';
-import utc from "dayjs/plugin/utc";
-
+import { ApplicationEventGateway } from '../../gateways/applicationEventGateway';
 
 const createApplication = async (req: Request, res: Response) => {
-    try {
-        dayjs.extend(utc)
-        let { application } = req.body as { application: IChemicalApplicationForm };
 
-        if (!application.id) {
-            const id = `application-${uuidv4()}`;
-            application = { id, ...application };
-        }
+    const applicationEventGateway = new ApplicationEventGateway();
+    let { application, accountId } = req.body as { application: IChemicalApplicationForm, accountId: string };
 
-        console.log(application)
-        validate(application);
-        //TODO: add application event and application details to database once set up
-        //TODO: get accoundId and make table name dynamic
-        const params = {
-            Item: {
-                pk: `application:accountId-${uuidv4()}:${dayjs().year()}`,
-                sk: `application:${application.dateOfApplication}:${application.id}`,
-                data: application,
-                createdAt: dayjs().utc().toISOString(),
-            },
-            TableName: 'TurfTracker-dev',
-
-        }
-        const response = await dynamoDb.put(params).promise();
-
-        res.locals.application = formatChemicalApplicationToApplicationEvent(application);
-        res.send(res.locals.application);
-    } catch (error) {
-        console.log(error);
-        res.status(400).send({ error: `${error}` });
+    if (!application.id) {
+        const id = `application-${uuidv4()}`;
+        application = { id, ...application };
     }
 
+    validate(application);
+
+    //TODO: add application event and application details to database once set up
+    await applicationEventGateway.createApplication(application, accountId);
+    const applicationEventResponse = await applicationEventGateway.createApplicationEvent(application, accountId);
+
+    res.locals.application = applicationEventResponse;
+    res.send(res.locals.application);
 };
 
 const schema = Joi.object({

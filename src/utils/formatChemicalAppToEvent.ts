@@ -8,6 +8,7 @@ export const formatChemicalApplicationToApplicationEvent = (chemApp: IChemicalAp
     }
 
     const applicationDate = new Date(chemApp.dateOfApplication);
+    console.log
     return {
         event_id: chemApp.id,
         title: combineAreaOfApplication(chemApp.areaOfApplication),
