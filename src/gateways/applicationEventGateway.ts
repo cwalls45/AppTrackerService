@@ -42,12 +42,17 @@ export class ApplicationEventGateway implements IApplicationGateway {
 
         try {
             const applicationEvent = formatChemicalApplicationToApplicationEvent(application);
+            const applicationEventForDynamo = {
+                ...applicationEvent,
+                start: dayjs(applicationEvent.start).toISOString(),
+                end: dayjs(applicationEvent.end).toISOString(),
+            }
 
             const params = {
                 Item: {
                     pk: `applicationEvent:${accountId}:${dayjs().year()}`,
                     sk: `applicationEvent:${application.dateOfApplication}:${application.id}`,
-                    data: applicationEvent,
+                    data: applicationEventForDynamo,
                     createdAt: dayjs().utc().toISOString(),
                 },
                 //TODO: make table name dynamic based on environment
