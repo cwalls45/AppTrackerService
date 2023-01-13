@@ -7,6 +7,7 @@ import { formatChemicalApplicationToApplicationEvent } from "../utils/formatChem
 export interface IApplicationGateway {
     createApplication(application: IChemicalApplicationForm, accountId: string): Promise<IChemicalApplicationForm>;
     createApplicationEvent(application: IChemicalApplicationForm, accountId: string): Promise<IApplication>;
+    getApplicationEventsByYear(year: number, accountId: string): Promise<any>;
 }
 
 export class ApplicationEventGateway implements IApplicationGateway {
@@ -56,7 +57,7 @@ export class ApplicationEventGateway implements IApplicationGateway {
                     createdAt: dayjs().utc().toISOString(),
                 },
                 //TODO: make table name dynamic based on environment
-                TableName: 'TurfTracker-dev',
+                TableName: 'TurfTracker-dev'
             };
             await this.dynamoDb.put(params).promise();
             console.log(`Application Event created: ${JSON.stringify(applicationEvent, null, 2)}`);
@@ -65,6 +66,30 @@ export class ApplicationEventGateway implements IApplicationGateway {
         } catch (error) {
             console.log(`Error occured in creating application event: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured in creating application event: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async getApplicationEventsByYear(year: number, accountId: string): Promise<any> {
+        try {
+            const params = {
+                //TODO: make table name dynamic based on environment
+                TableName: 'TurfTracker-dev',
+                KeyConditionExpression: "pk = :pk",
+                ExpressionAttributeValues: {
+                    ":pk": `applicationEvent:${accountId}:${year}`,
+                },
+            };
+            // TODO: make sure there is not a more efficent way to get all application events
+            const applicationEvents = await this.dynamoDb.query(params).promise();
+            //TODO: revist below to make this more clear
+            console.log('applictationEvent', JSON.stringify(applicationEvents, null, 2))
+
+            return applicationEvents.Items?.map((appEvent) => ({
+                ...appEvent.data
+            }));
+        } catch (error) {
+            console.log(`Error occured in fetching application event: ${JSON.stringify(error, null, 2)}`)
+            throw new Error(`Error occured in fetching application event: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }
