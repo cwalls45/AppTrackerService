@@ -133,6 +133,19 @@
                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/TurfTrackerService-dev*:*:*"
                     }
                   ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:DescribeTable",
+                    "dynamodb:Query",
+                    "dynamodb:Scan",
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:UpdateItem",
+                    "dynamodb:DeleteItem"
+                  ],
+                  "Resource": "arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-dev"
                 }
               ]
             }
@@ -161,7 +174,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/TurfTrackerService/dev/1673060226249-2023-01-07T02:57:06.249Z/TurfTrackerService.zip"
+          "S3Key": "serverless/TurfTrackerService/dev/1673925285789-2023-01-17T03:14:45.789Z/TurfTrackerService.zip"
         },
         "Handler": "src/index.handler",
         "Runtime": "nodejs12.x",
@@ -179,14 +192,14 @@
         "ApiLogGroup"
       ]
     },
-    "ApiLambdaVersionGIURYWEmyWbLay8llAQo5wQMZJvnARaFFL8xEEM": {
+    "ApiLambdaVersionmj2sTPfVTLgeZ5PLRJvyMvcatEt6Bvwi2vH0YlhIJU": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "pPJ0iJ41eUHvGBy5TenTn+gIMnVybSaLEEiYlbEq/Mw="
+        "CodeSha256": "lGVdwhWbdFENINx5FTJtf69d+SKBVJTRDHTDhfQuz1g="
       }
     },
     "HttpApi": {
@@ -283,6 +296,33 @@
         }
       },
       "DependsOn": "HttpApiIntegrationApi"
+    },
+    "dynamoTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "TurfTracker-dev",
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "pk",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "sk",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "pk",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "sk",
+            "KeyType": "RANGE"
+          }
+        ]
+      }
     }
   },
   "Outputs": {
@@ -297,7 +337,7 @@
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersionGIURYWEmyWbLay8llAQo5wQMZJvnARaFFL8xEEM"
+        "Ref": "ApiLambdaVersionmj2sTPfVTLgeZ5PLRJvyMvcatEt6Bvwi2vH0YlhIJU"
       },
       "Export": {
         "Name": "sls-TurfTrackerService-dev-ApiLambdaFunctionQualifiedArn"

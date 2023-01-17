@@ -1,25 +1,31 @@
 import { Request, Response } from 'express';
 import Joi from 'joi';
+import { v4 as uuidv4 } from 'uuid';
 import { ChemicalApplicationFormProperty, ChemicalProperties, IChemicalApplicationForm } from '../../entities/chemicalApplication';
-import { formatChemicalApplicationToApplicationEvent } from '../../utils/formatChemicalAppToEvent';
-
+import { ApplicationEventGateway } from '../../gateways/applicationEventGateway';
 
 const createApplication = async (req: Request, res: Response) => {
-    try {
-        const { application } = req.body as { application: IChemicalApplicationForm };
-        console.log(application)
-        validate(application);
-        res.locals.application = formatChemicalApplicationToApplicationEvent(application);
-        //TODO: add application event and application details to database once set up
-        res.send(res.locals.application);
-    } catch (error) {
-        console.log(error);
-        res.status(400).send({ error: `${error}` });
+
+    const applicationEventGateway = new ApplicationEventGateway();
+    let { application, accountId } = req.body as { application: IChemicalApplicationForm, accountId: string };
+
+    if (!application.id) {
+        const id = `application-${uuidv4()}`;
+        application = { id, ...application };
     }
 
+    validate(application);
+
+    //TODO: add application event and application details to database once set up
+    await applicationEventGateway.createApplication(application, accountId);
+    const applicationEventResponse = await applicationEventGateway.createApplicationEvent(application, accountId);
+
+    res.locals.application = applicationEventResponse;
+    res.send(res.locals.application);
 };
 
 const schema = Joi.object({
+    [ChemicalApplicationFormProperty.ID]: Joi.string().required(),
     [ChemicalApplicationFormProperty.DATE_OF_APPLICATION]: Joi.string().required(),
     [ChemicalApplicationFormProperty.AREA_OF_APPLICATION]: Joi.array().items(Joi.string()).required(),
     [ChemicalApplicationFormProperty.TOTAL_AREA_OF_APP]: Joi.string().pattern(/^[0-9]+$/).required(),
