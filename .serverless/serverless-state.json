@@ -9,21 +9,25 @@
       "runtime": "nodejs12.x",
       "region": "us-east-1",
       "stage": "dev",
-      "iamRoleStatements": [
-        {
-          "Effect": "Allow",
-          "Action": [
-            "dynamodb:DescribeTable",
-            "dynamodb:Query",
-            "dynamodb:Scan",
-            "dynamodb:GetItem",
-            "dynamodb:PutItem",
-            "dynamodb:UpdateItem",
-            "dynamodb:DeleteItem"
-          ],
-          "Resource": "arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-dev"
+      "iam": {
+        "role": {
+          "statements": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:DescribeTable",
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem"
+              ],
+              "Resource": "arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-dev"
+            }
+          ]
         }
-      ],
+      },
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
         "AWSTemplateFormatVersion": "2010-09-09",
@@ -162,7 +166,7 @@
                         ]
                       },
                       {
-                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][0]"
+                        "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][0]"
                       }
                     ]
                   }
@@ -191,7 +195,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/TurfTrackerService/dev/1673925285789-2023-01-17T03:14:45.789Z/TurfTrackerService.zip"
+                "S3Key": "serverless/TurfTrackerService/dev/1674016442942-2023-01-18T04:34:02.942Z/TurfTrackerService.zip"
               },
               "Handler": "src/index.handler",
               "Runtime": "nodejs12.x",
@@ -477,6 +481,16 @@
       },
       "vpc": {}
     },
+    "custom": {
+      "dynamodb": {
+        "stages": [
+          "dev"
+        ],
+        "start": {
+          "migrate": true
+        }
+      }
+    },
     "plugins": [
       "serverless-dynamodb-local",
       "serverless-plugin-typescript",
@@ -543,17 +557,20 @@
     "serviceFilename": "serverless.yml",
     "initialServerlessConfig": {
       "service": "TurfTrackerService",
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
+      },
       "provider": {
         "$ref": "$[\"service\"][\"provider\"]"
       },
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
       },
+      "custom": {
+        "$ref": "$[\"service\"][\"custom\"]"
+      },
       "resources": {
         "$ref": "$[\"service\"][\"resources\"]"
-      },
-      "plugins": {
-        "$ref": "$[\"service\"][\"plugins\"]"
       }
     },
     "layers": {},
@@ -561,7 +578,7 @@
     "artifact": "C:\\Users\\cwall\\OneDrive\\Desktop\\AppTrackerService\\.build\\.serverless\\TurfTrackerService.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/TurfTrackerService/dev/1673925285789-2023-01-17T03:14:45.789Z",
+    "artifactDirectoryName": "serverless/TurfTrackerService/dev/1674016442942-2023-01-18T04:34:02.942Z",
     "artifact": "TurfTrackerService.zip"
   }
 }
