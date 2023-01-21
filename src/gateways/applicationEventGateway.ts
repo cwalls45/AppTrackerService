@@ -12,7 +12,7 @@ export interface IApplicationGateway {
 
 export class ApplicationEventGateway implements IApplicationGateway {
 
-    dynamoDb = new AWS.DynamoDB.DocumentClient();
+    private dynamoDb = new AWS.DynamoDB.DocumentClient();
 
     constructor() { }
 

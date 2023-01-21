@@ -195,7 +195,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/TurfTrackerService/dev/1674016442942-2023-01-18T04:34:02.942Z/TurfTrackerService.zip"
+                "S3Key": "serverless/TurfTrackerService/dev/1674313161077-2023-01-21T14:59:21.077Z/TurfTrackerService.zip"
               },
               "Handler": "src/index.handler",
               "Runtime": "nodejs12.x",
@@ -213,14 +213,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionmj2sTPfVTLgeZ5PLRJvyMvcatEt6Bvwi2vH0YlhIJU": {
+          "ApiLambdaVersionK7bhmeeRHaqgChOo97TnCiWK6LFVHxb9a5dlUilSmk": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "lGVdwhWbdFENINx5FTJtf69d+SKBVJTRDHTDhfQuz1g="
+              "CodeSha256": "htNDyOZOvom4t0NKQOdRLEai6mw0x12qjAtfuTheetk="
             }
           },
           "HttpApi": {
@@ -355,7 +355,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionmj2sTPfVTLgeZ5PLRJvyMvcatEt6Bvwi2vH0YlhIJU"
+              "Ref": "ApiLambdaVersionK7bhmeeRHaqgChOo97TnCiWK6LFVHxb9a5dlUilSmk"
             },
             "Export": {
               "Name": "sls-TurfTrackerService-dev-ApiLambdaFunctionQualifiedArn"
@@ -518,7 +518,7 @@
         "timeout": 6,
         "runtime": "nodejs12.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionmj2sTPfVTLgeZ5PLRJvyMvcatEt6Bvwi2vH0YlhIJU"
+        "versionLogicalId": "ApiLambdaVersionK7bhmeeRHaqgChOo97TnCiWK6LFVHxb9a5dlUilSmk"
       }
     },
     "resources": {
@@ -578,7 +578,7 @@
     "artifact": "C:\\Users\\cwall\\OneDrive\\Desktop\\AppTrackerService\\.build\\.serverless\\TurfTrackerService.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/TurfTrackerService/dev/1674016442942-2023-01-18T04:34:02.942Z",
+    "artifactDirectoryName": "serverless/TurfTrackerService/dev/1674313161077-2023-01-21T14:59:21.077Z",
     "artifact": "TurfTrackerService.zip"
   }
 }
