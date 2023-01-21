@@ -1,23 +1,31 @@
 service: TurfTrackerService
 
+# Serverless plugins
+plugins:
+  - serverless-dynamodb-local
+  - serverless-plugin-typescript
+  - serverless-offline
+
 provider:
   name: aws
   runtime: nodejs12.x
   region: us-east-1
   stage: dev
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:DescribeTable
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        # TODO: make this arn dynamic
-        - arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-dev
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            # TODO: make this arn dynamic
+            - arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-dev
 
 
 # functions
@@ -26,6 +34,13 @@ functions:
     handler: src/index.handler
     events: # The events that trigger this function
       - httpApi: '*'
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      migrate: true
 
 resources:
   Resources:
@@ -44,9 +59,3 @@ resources:
             KeyType: HASH
           - AttributeName: sk
             KeyType: RANGE
-
-# Serverless plugins
-plugins:
-  - serverless-dynamodb-local
-  - serverless-plugin-typescript
-  - serverless-offline
