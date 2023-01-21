@@ -7,7 +7,7 @@ import addInventory from '../controllers/inventory/addInventory';
 
 const router = express.Router();
 
-router.get('/applicationEvents', getApplicationEvents);
+router.get('/applicationEvents/:year/:accountId', getApplicationEvents);
 
 router.get('/partialChemicalName/:chemical', getByPartialChemicalName);
 

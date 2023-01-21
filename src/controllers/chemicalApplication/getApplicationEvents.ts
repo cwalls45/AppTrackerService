@@ -1,16 +1,13 @@
 import { Request, Response } from 'express';
-import { applicationEventsTestData } from '../../testData/getApplicationEventsTestData';
+import { ApplicationEventGateway } from '../../gateways/applicationEventGateway';
 
 const getApplicationEvents = async (req: Request, res: Response) => {
-    try {
-        //TODO: get application events once database is set up
-        const response = applicationEventsTestData
-        res.locals.events = response;
-        res.send(res.locals.events);
-    } catch (error) {
-        console.log(error);
-        res.status(400).send({ error: 'There was an error fetching application events' });
-    }
+    const year = Number(req.params.year);
+    const accountId = req.params.accountId;
+    const applicationEventGateway = new ApplicationEventGateway();
+    const applicationEvents = await applicationEventGateway.getApplicationEventsByYear(year, accountId);
+    res.locals.events = applicationEvents;
+    res.send(res.locals.events);
 };
 
 export default getApplicationEvents;

@@ -1,10 +1,14 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import router from './router/router';
+import AWS from 'aws-sdk';
+import dayjs from 'dayjs';
+import utc from "dayjs/plugin/utc";
 const serverless = require('serverless-http');
 const cors = require('cors');
 
 dotenv.config();
+dayjs.extend(utc);
 
 const app: Express = express();
 
