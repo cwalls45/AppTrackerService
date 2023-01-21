@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc -p .",
-    "start:local": "serverless offline",
+    "start:local": "serverless offline start",
     "deploy": "serverless deploy",
     "start": "node ./build/index.js",
     "dev": "cross-env nodemon ./src/index.ts"
