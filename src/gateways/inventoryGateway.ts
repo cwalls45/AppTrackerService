@@ -1,6 +1,7 @@
 import AWS from "aws-sdk";
 import dayjs from "dayjs";
 import { IInventory } from "../entities/inventory";
+import { removeWhiteSpace } from "../utils/removeWhiteSpace";
 
 export interface IInventoryGateway {
     addInventory(inventory: IInventory, accountId: string): Promise<IInventory>;
@@ -16,10 +17,14 @@ export class InventoryGateway implements IInventoryGateway {
     async addInventory(inventory: IInventory, accountId: string): Promise<IInventory> {
 
         try {
+            const { companyName, chemicalName } = inventory;
+            const companyNameForKeys = removeWhiteSpace(companyName);
+            const chemicalNameForKeys = removeWhiteSpace(chemicalName);
+
             const params = {
                 Item: {
                     pk: `inventory:${accountId}`,
-                    sk: `inventory:${inventory.companyName}:${inventory.chemicalName}`,
+                    sk: `inventory:${companyNameForKeys}:${chemicalNameForKeys}`,
                     data: inventory,
                     createdAt: dayjs().utc().toISOString(),
                 },
@@ -27,7 +32,7 @@ export class InventoryGateway implements IInventoryGateway {
                 TableName: 'TurfTracker-dev',
             };
             await this.dynamoDb.put(params).promise();
-            console.log(`Inventory Added: ${JSON.stringify(inventory, null, 2)}`);
+            console.log(`InventoryGateway - Inventory Added: ${JSON.stringify(inventory, null, 2)}`);
 
             return inventory;
         } catch (error) {
@@ -38,24 +43,27 @@ export class InventoryGateway implements IInventoryGateway {
 
     async getInventoryItem(inventory: IInventory, accountId: string): Promise<IInventory> {
         try {
-            const { companyName, chemicalName } = inventory;
+            let { companyName, chemicalName } = inventory;
+            const companyNameForKeys = removeWhiteSpace(companyName);
+            const chemicalNameForKeys = removeWhiteSpace(chemicalName);
+
             const params = {
                 Key: {
                     pk: `inventory:${accountId}`,
-                    sk: `inventory:${companyName}:${chemicalName}`,
+                    sk: `inventory:${companyNameForKeys}:${chemicalNameForKeys}`,
                 },
                 //TODO: make table name dynamic based on environment
                 TableName: 'TurfTracker-dev',
             };
 
             const inventoryResponse = await this.dynamoDb.get(params).promise();
-            console.log('inventoryResponse', inventoryResponse)
+            console.log(`InventoryGateway - Inventory fetched: ${JSON.stringify(inventoryResponse, null, 2)}`);
 
             return inventoryResponse.Item as IInventory;
 
         } catch (error) {
-            console.log(`Error occured in getting inventory item: ${JSON.stringify(error, null, 2)}`)
-            throw new Error(`Error occured in getting inventory item: ${JSON.stringify(error, null, 2)}`);
+            console.log(`Error occured in fetching inventory item: ${JSON.stringify(error, null, 2)}`)
+            throw new Error(`Error occured in fetching inventory item: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }

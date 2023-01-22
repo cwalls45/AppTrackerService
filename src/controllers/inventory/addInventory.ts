@@ -8,7 +8,7 @@ const addInventory = async (req: Request, res: Response) => {
     try {
 
         let addInventoryresponse: IInventory;
-        //TODO: determine if there is already a record
+
         const inventoryGateway = new InventoryGateway()
 
         let { inventory, accountId } = req.body as { inventory: IInventory, accountId: string };
@@ -16,14 +16,17 @@ const addInventory = async (req: Request, res: Response) => {
         const getInventoryResponse = await inventoryGateway.getInventoryItem(inventory, accountId);
         console.log('getInventoryResponse', getInventoryResponse)
 
-        //Todo: convert inventory and combine with response from get request
         const convertedInventory = convertInventoryUnits(inventory);
 
         if (isEmpty(getInventoryResponse)) {
             addInventoryresponse = await inventoryGateway.addInventory(convertedInventory, accountId);
         } else {
-            //Todo: edit existing record, add inventory to existing record
-            return convertedInventory
+
+            const combinedAmount = (Number(getInventoryResponse.amount) + Number(convertedInventory.amount)).toString();
+            addInventoryresponse = {
+                ...convertedInventory,
+                amount: combinedAmount
+            }
         }
 
         res.locals.inventory = addInventoryresponse;
