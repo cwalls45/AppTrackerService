@@ -14,19 +14,20 @@ const addInventory = async (req: Request, res: Response) => {
         let { inventory, accountId } = req.body as { inventory: IInventory, accountId: string };
 
         const getInventoryResponse = await inventoryGateway.getInventoryItem(inventory, accountId);
-        console.log('getInventoryResponse', getInventoryResponse)
+
+        //Todo: check to make sure amount units can be converted to correct unit
 
         const convertedInventory = convertInventoryUnits(inventory);
 
         if (isEmpty(getInventoryResponse)) {
             addInventoryresponse = await inventoryGateway.addInventory(convertedInventory, accountId);
         } else {
-
-            const combinedAmount = (Number(getInventoryResponse.amount) + Number(convertedInventory.amount)).toString();
-            addInventoryresponse = {
+            const combinedAmount = Number(getInventoryResponse.data.amount) + Number(convertedInventory.amount);
+            const inventoryWithNewAmount = {
                 ...convertedInventory,
-                amount: combinedAmount
+                amount: combinedAmount.toString()
             }
+            addInventoryresponse = await inventoryGateway.addInventory(inventoryWithNewAmount, accountId);
         }
 
         res.locals.inventory = addInventoryresponse;

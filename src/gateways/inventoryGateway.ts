@@ -5,7 +5,7 @@ import { removeWhiteSpace } from "../utils/removeWhiteSpace";
 
 export interface IInventoryGateway {
     addInventory(inventory: IInventory, accountId: string): Promise<IInventory>;
-    getInventoryItem(inventory: IInventory, accountId: string): Promise<IInventory>;
+    getInventoryItem(inventory: IInventory, accountId: string): Promise<any>;
 }
 
 export class InventoryGateway implements IInventoryGateway {
@@ -41,7 +41,7 @@ export class InventoryGateway implements IInventoryGateway {
         }
     }
 
-    async getInventoryItem(inventory: IInventory, accountId: string): Promise<IInventory> {
+    async getInventoryItem(inventory: IInventory, accountId: string): Promise<any> {
         try {
             let { companyName, chemicalName } = inventory;
             const companyNameForKeys = removeWhiteSpace(companyName);
@@ -59,7 +59,8 @@ export class InventoryGateway implements IInventoryGateway {
             const inventoryResponse = await this.dynamoDb.get(params).promise();
             console.log(`InventoryGateway - Inventory fetched: ${JSON.stringify(inventoryResponse, null, 2)}`);
 
-            return inventoryResponse.Item as IInventory;
+            //Todo: find way return IInventory
+            return inventoryResponse.Item;
 
         } catch (error) {
             console.log(`Error occured in fetching inventory item: ${JSON.stringify(error, null, 2)}`)
