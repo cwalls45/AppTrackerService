@@ -19,7 +19,7 @@ const addInventory = async (req: Request, res: Response) => {
         if (isEmpty(getInventoryResponse)) {
             addInventoryresponse = await inventoryGateway.addInventory(convertedInventory, accountId);
         } else {
-            canInventoriesBeCombined(convertedInventory, getInventoryResponse.data.amount);
+            canInventoriesBeCombined(convertedInventory, getInventoryResponse.data);
 
             const combinedAmount = Number(getInventoryResponse.data.amount) + Number(convertedInventory.amount);
             const inventoryWithNewAmount = {
@@ -33,7 +33,7 @@ const addInventory = async (req: Request, res: Response) => {
         res.locals.inventory = addInventoryresponse;
         res.send(res.locals.inventory);
     } catch (error) {
-        console.log(JSON.stringify(error, null, 2));
+        console.log('ERROR in addInventory.ts: ', JSON.stringify(error, null, 2));
         res.status(400).send({ error: `There was an error adding inventory: ${req.body.inventory.companyName}` })
     }
 };
