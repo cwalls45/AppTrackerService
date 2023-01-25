@@ -20,3 +20,13 @@ export const convertInventoryUnits = (inventory: IInventory): IInventory => {
         return inventory
     }
 }
+
+export const canUnitsBeAddedTogether = (inventory: IInventory, existingInventory: IInventory): boolean => {
+
+    if (existingInventory.units === Units.FLOZ && (inventory.units === Units.LBS || inventory.units === Units.OZ)) {
+        return false;
+    } else if (existingInventory.units === Units.OZ && (inventory.units === Units.GAL || inventory.units === Units.FLOZ)) {
+        return false;
+    }
+    return true;
+}
