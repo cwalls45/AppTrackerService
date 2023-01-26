@@ -2,9 +2,9 @@ export interface IInventory {
     chemicalName: string;
     companyName: string;
     amount: string;
-    units: string;
+    units: Units;
     cost: string;
-    costUnit: string;
+    costUnit: Units;
 };
 
 export enum Units {
