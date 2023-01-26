@@ -4,6 +4,7 @@ export interface IInventory {
     amount: string;
     units: string;
     cost: string;
+    costUnit: string;
 };
 
 export enum Units {
@@ -11,4 +12,13 @@ export enum Units {
     OZ = 'oz',
     GAL = 'gallon(s)',
     FLOZ = 'fl. oz'
+}
+
+export enum InventoryProperty {
+    CHEMICAL_NAME = 'chemicalName',
+    COMPANY_NAME = 'companyName',
+    AMOUNT = 'amount',
+    UNITS = 'units',
+    COST = 'cost',
+    COST_UNIT = 'costUnit'
 }
