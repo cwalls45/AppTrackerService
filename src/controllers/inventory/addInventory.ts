@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { IInventory, InventoryProperty } from '../../entities/inventory';
 import { InventoryGateway } from '../../gateways/inventoryGateway';
 import { isEmpty } from 'lodash';
-import { canUnitsBeAddedTogether, convertInventoryUnits } from '../../utils/convertInventoryUnits';
+import { averageCost, canUnitsBeAddedTogether, convertInventoryUnits } from '../../utils/convertInventoryUnits';
 
 
 const addInventory = async (req: Request, res: Response) => {
@@ -14,7 +14,6 @@ const addInventory = async (req: Request, res: Response) => {
         let { inventory, accountId } = req.body as { inventory: IInventory, accountId: string };
 
         validate(inventory);
-        //Todo: ensure cost units match what is in dynamo
 
         const getInventoryResponse = await inventoryGateway.getInventoryItem(inventory, accountId);
 
@@ -24,11 +23,12 @@ const addInventory = async (req: Request, res: Response) => {
             addInventoryresponse = await inventoryGateway.addInventory(convertedInventory, accountId);
         } else {
             canInventoriesBeCombined(convertedInventory, getInventoryResponse.data);
-
+            const cost = averageCost(convertedInventory, getInventoryResponse.data);
             const combinedAmount = Number(getInventoryResponse.data.amount) + Number(convertedInventory.amount);
             const inventoryWithNewAmount = {
                 ...convertedInventory,
-                amount: combinedAmount.toString()
+                amount: combinedAmount.toString(),
+                cost
             }
 
             addInventoryresponse = await inventoryGateway.addInventory(inventoryWithNewAmount, accountId);
