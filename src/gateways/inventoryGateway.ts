@@ -6,6 +6,7 @@ import { removeWhiteSpace } from "../utils/removeWhiteSpace";
 export interface IInventoryGateway {
     addInventory(inventory: IInventory, accountId: string): Promise<IInventory>;
     getInventoryItem(inventory: IInventory, accountId: string): Promise<any>;
+    getAllInventory(accountId: string): Promise<any>
 }
 
 export class InventoryGateway implements IInventoryGateway {
@@ -65,6 +66,31 @@ export class InventoryGateway implements IInventoryGateway {
         } catch (error) {
             console.log(`Error occured in fetching inventory item: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured in fetching inventory item: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async getAllInventory(accountId: string): Promise<any> {
+        try {
+            const params = {
+                //TODO: make table name dynamic based on environment
+                TableName: 'TurfTracker-dev',
+                KeyConditionExpression: "pk = :pk",
+                ExpressionAttributeValues: {
+                    ":pk": `inventory:${accountId}`,
+                },
+            };
+            // TODO: make sure there is not a more efficent way to get all inventory
+            const inventory = await this.dynamoDb.query(params).promise();
+            //TODO: revist below to make this more clear
+            console.log('Inventory Gateway - Get All Inventory: ', JSON.stringify(inventory, null, 2))
+
+            return inventory.Items?.map((invtry) => ({
+                ...invtry.data
+            }));
+
+        } catch (error) {
+            console.log(`Error occured in fetching all inventory: ${JSON.stringify(error, null, 2)}`)
+            throw new Error(`Error occured in fetching all inventory: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }
