@@ -4,6 +4,7 @@ import getApplicationEvents from '../controllers/chemicalApplication/getApplicat
 import getCompaniesByProductName from '../controllers/chemicalApplication/getCompaniesByProductName';
 import getByPartialChemicalName from '../controllers/chemicalApplication/getPartialChemicalName';
 import addInventory from '../controllers/inventory/addInventory';
+import getAllInventory from '../controllers/inventory/getAllInventory';
 
 const router = express.Router();
 
@@ -15,6 +16,9 @@ router.get('/companyNamesByProduct/:productName', getCompaniesByProductName);
 
 router.post('/createApplication', createApplication);
 
-router.post('/addInventory', addInventory)
+router.post('/addInventory', addInventory);
+
+router.get('/getAllInventory/:accountId', getAllInventory);
+
 
 export default router; 
