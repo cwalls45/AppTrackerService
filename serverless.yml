@@ -25,8 +25,13 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             # TODO: make this arn dynamic
-            - arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-dev
-
+            - arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-${self:provider.stage}
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminSetUserPassword
+          Resource: "*" #make specific
 
 # functions
 functions:
@@ -38,24 +43,50 @@ functions:
 custom:
   dynamodb:
     stages:
-      - dev
+      - ${self:provider.stage}
     start:
       migrate: true
 
 resources:
   Resources:
-    dynamoTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: TurfTracker-${self:provider.stage}
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: pk
-            AttributeType: S
-          - AttributeName: sk
-            AttributeType: S
-        KeySchema: 
-          - AttributeName: pk
-            KeyType: HASH
-          - AttributeName: sk
-            KeyType: RANGE
+      UserPool:
+        Type: AWS::Cognito::UserPool
+        Properties:
+          UserPoolName: ${self:service}-userPool-${self:provider.stage}
+          Schema:
+            - Name: email
+              Required: true
+              Mutable: true
+          Policies:
+            PasswordPolicy: 
+              MinimumLength: 8
+              RequireNumbers: true
+              RequireLowercase: true
+              RequireUppercase: true
+          AutoVerifiedAttributes: ["email"]
+      UserPoolClient:
+        Type: AWS::Cognito::UserPoolClient
+        Properties:
+          ClientName: ${self:service}-userPoolClient-${self:provider.stage}
+          GenerateSecret: false
+          UserPoolId:
+            Ref: UserPool
+          AccessTokenValidity: 8
+          IdTokenValidity: 8
+          ExplicitAuthFlows:
+            - "ADMIN_NO_SRP_AUTH"
+      dynamoTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: TurfTracker-${self:provider.stage}
+          BillingMode: PAY_PER_REQUEST
+          AttributeDefinitions:
+            - AttributeName: pk
+              AttributeType: S
+            - AttributeName: sk
+              AttributeType: S
+          KeySchema: 
+            - AttributeName: pk
+              KeyType: HASH
+            - AttributeName: sk
+              KeyType: RANGE
