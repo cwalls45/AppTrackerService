@@ -12,8 +12,8 @@ provider:
   region: us-east-1
   stage: dev
   environment:
-    USER_POOL: ${self:service}-userPool-${self:provider.stage}
-    USER_POOL_CLIENT: ${self:service}-userPoolClient-${self:provider.stage}
+    USER_POOL: { Ref: UserPool }
+    USER_POOL_CLIENT: { Ref: UserPoolClient }
     DYNAMO: TurfTracker-${self:provider.stage}
   iam:
     role:

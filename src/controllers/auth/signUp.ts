@@ -12,9 +12,13 @@ const signUp = async (req: Request, res: Response) => {
 
         validate(signUp);
 
-        await cognitoGateway.signUpUser(signUp);
+        const result = await cognitoGateway.signUpUser(signUp);
 
-        res.send('TEST')
+        if (!result) {
+            res.status(400).send(`Failed to create user: ${signUp.email}`);
+        }
+
+        res.send(`User successfully created: ${signUp.email}`)
 
     } catch (error) {
         console.log(error);
@@ -23,8 +27,9 @@ const signUp = async (req: Request, res: Response) => {
 }
 
 const schema = Joi.object({
-    email: Joi.string().required(),
-    password: Joi.string().required(),
+    email: Joi.string().required().email(),
+    password: Joi.string().min(8).max(30).regex(/[A-Z]/, 'upperCase')
+        .regex(/[a-z]/, 'lowerCase').required(),
 });
 
 const validate = (signUp: ISignUp) => {
