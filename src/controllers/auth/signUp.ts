@@ -1,13 +1,20 @@
 import { Request, Response } from 'express';
 import Joi from 'joi';
 import { ISignUp } from '../../entities/auth';
+import { CognitoGateway } from '../../gateways/cognitoGateway';
 
 const signUp = async (req: Request, res: Response) => {
+
+    const cognitoGateway = new CognitoGateway()
+
     try {
         const { signUp }: { signUp: ISignUp } = req.body;
 
         validate(signUp);
 
+        await cognitoGateway.signUpUser(signUp);
+
+        res.send('TEST')
 
     } catch (error) {
         console.log(error);
