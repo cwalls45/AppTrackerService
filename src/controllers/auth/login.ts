@@ -1,30 +1,29 @@
+
 import { Request, Response } from 'express';
 import Joi from 'joi';
-import { ISignUp } from '../../entities/auth';
-import { CognitoGateway } from '../../gateways/cognitoGateway';
+import { ISignUp } from "../../entities/auth";
+import { CognitoGateway } from "../../gateways/cognitoGateway";
 
-const signUp = async (req: Request, res: Response) => {
+const login = async (req: Request, res: Response) => {
 
     const cognitoGateway = new CognitoGateway()
 
     try {
-        const { signUp }: { signUp: ISignUp } = req.body;
+        const { user }: { user: ISignUp } = req.body;
 
-        validate(signUp);
+        validate(user);
 
-        const result = await cognitoGateway.signUpUser(signUp);
+        const loggedInUser = await cognitoGateway.login(user);
 
-        if (!result) {
-            res.status(400).send(`Failed to create user: ${signUp.email}`);
+        if (!loggedInUser) {
+            res.status(400).send(`Failed to login user: ${user.email}`);
         }
-
-        const loggedInUser = await cognitoGateway.login(signUp);
 
         res.send({ user: loggedInUser.AuthenticationResult });
 
     } catch (error) {
         console.log(error);
-        res.status(400).send({ error: `There was an error signing up user: ${JSON.stringify(req.body.signUp, null, 2)}` });
+        res.status(400).send({ error: `There was an error logging in user: ${JSON.stringify(req.body.signUp, null, 2)}` });
     }
 }
 
@@ -41,4 +40,4 @@ const validate = (signUp: ISignUp) => {
     };
 }
 
-export default signUp;
+export default login;
