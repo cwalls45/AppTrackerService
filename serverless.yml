@@ -1,24 +1,41 @@
 service: TurfTrackerService
 
+# Serverless plugins
+plugins:
+  - serverless-dynamodb-local
+  - serverless-plugin-typescript
+  - serverless-offline
+
 provider:
   name: aws
   runtime: nodejs12.x
   region: us-east-1
   stage: dev
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:DescribeTable
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        # TODO: make this arn dynamic
-        - arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-dev
-
+  environment:
+    USER_POOL: { Ref: UserPool }
+    USER_POOL_CLIENT: { Ref: UserPoolClient }
+    DYNAMO: TurfTracker-${self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            # TODO: make this arn dynamic
+            - arn:aws:dynamodb:us-east-1:274548839274:table/TurfTracker-${self:provider.stage}
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminSetUserPassword
+          Resource: "*" #make specific
 
 # functions
 functions:
@@ -27,26 +44,53 @@ functions:
     events: # The events that trigger this function
       - httpApi: '*'
 
+custom:
+  dynamodb:
+    stages:
+      - ${self:provider.stage}
+    start:
+      migrate: true
+
 resources:
   Resources:
-    dynamoTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: TurfTracker-${self:provider.stage}
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: pk
-            AttributeType: S
-          - AttributeName: sk
-            AttributeType: S
-        KeySchema: 
-          - AttributeName: pk
-            KeyType: HASH
-          - AttributeName: sk
-            KeyType: RANGE
-
-# Serverless plugins
-plugins:
-  - serverless-dynamodb-local
-  - serverless-plugin-typescript
-  - serverless-offline
+      UserPool:
+        Type: AWS::Cognito::UserPool
+        Properties:
+          UserPoolName: ${self:service}-userPool-${self:provider.stage}
+          Schema:
+            - Name: email
+              Required: true
+              Mutable: true
+          Policies:
+            PasswordPolicy: 
+              MinimumLength: 8
+              RequireNumbers: true
+              RequireLowercase: true
+              RequireUppercase: true
+          AutoVerifiedAttributes: ["email"]
+      UserPoolClient:
+        Type: AWS::Cognito::UserPoolClient
+        Properties:
+          ClientName: ${self:service}-userPoolClient-${self:provider.stage}
+          GenerateSecret: false
+          UserPoolId:
+            Ref: UserPool
+          AccessTokenValidity: 8
+          IdTokenValidity: 8
+          ExplicitAuthFlows:
+            - "ADMIN_NO_SRP_AUTH"
+      dynamoTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: TurfTracker-${self:provider.stage}
+          BillingMode: PAY_PER_REQUEST
+          AttributeDefinitions:
+            - AttributeName: pk
+              AttributeType: S
+            - AttributeName: sk
+              AttributeType: S
+          KeySchema: 
+            - AttributeName: pk
+              KeyType: HASH
+            - AttributeName: sk
+              KeyType: RANGE
