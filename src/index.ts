@@ -1,6 +1,7 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import router from './router/router';
+import router from './routers/router';
+import authRouter from './routers/authRouter';
 import AWS from 'aws-sdk';
 import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc";
@@ -19,6 +20,8 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/auth', authRouter);
 
 // Route Handlers
 app.use('/api', router);

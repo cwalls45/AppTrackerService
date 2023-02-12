@@ -20,5 +20,4 @@ router.post('/addInventory', addInventory);
 
 router.get('/getAllInventory/:accountId', getAllInventory);
 
-
 export default router; 

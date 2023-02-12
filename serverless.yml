@@ -11,6 +11,10 @@ provider:
   runtime: nodejs12.x
   region: us-east-1
   stage: dev
+  environment:
+    USER_POOL: { Ref: UserPool }
+    USER_POOL_CLIENT: { Ref: UserPoolClient }
+    DYNAMO: TurfTracker-${self:provider.stage}
   iam:
     role:
       statements:
