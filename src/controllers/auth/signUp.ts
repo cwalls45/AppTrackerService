@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { ISignUp } from '../../entities/auth';
 import { CognitoGateway } from '../../gateways/cognitoGateway';
 
-const signUp = async (req: Request, res: Response) => {
+const createUser = async (req: Request, res: Response) => {
 
     const cognitoGateway = new CognitoGateway()
 
@@ -41,4 +41,4 @@ const validate = (signUp: ISignUp) => {
     };
 }
 
-export default signUp;
+export default createUser;
