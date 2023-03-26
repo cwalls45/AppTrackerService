@@ -2,25 +2,30 @@ import { Request, Response } from 'express';
 import Joi from 'joi';
 import { ISignUp } from '../../entities/auth';
 import { CognitoGateway } from '../../gateways/cognitoGateway';
+import { SignUpGateway } from '../../gateways/signUpGateway';
 
 const createUser = async (req: Request, res: Response) => {
 
-    const cognitoGateway = new CognitoGateway()
+    const cognitoGateway = new CognitoGateway();
+    const signUpGateway = new SignUpGateway();
 
     try {
         const { signUp }: { signUp: ISignUp } = req.body;
 
         validate(signUp);
 
-        const result = await cognitoGateway.signUpUser(signUp);
+        const cognitoResult = await cognitoGateway.signUpUser(signUp);
 
-        if (!result) {
+        if (!cognitoResult) {
             res.status(400).send(`Failed to create user: ${signUp.email}`);
         }
 
+        const signUpResult = await signUpGateway.createShellAccount(signUp.firstName, signUp.lastName, signUp.email);
+        console.log('signupUpResult: ', JSON.stringify(signUpResult, null, 2))
+
         const loggedInUser = await cognitoGateway.login(signUp);
 
-        res.send({ user: loggedInUser.AuthenticationResult });
+        res.send({ user: loggedInUser.AuthenticationResult, accountInfo: signUpResult });
 
     } catch (error) {
         console.log(error);
@@ -29,6 +34,8 @@ const createUser = async (req: Request, res: Response) => {
 }
 
 const schema = Joi.object({
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
     email: Joi.string().required().email(),
     password: Joi.string().min(8).max(30).regex(/[A-Z]/, 'upperCase')
         .regex(/[a-z]/, 'lowerCase').required(),
