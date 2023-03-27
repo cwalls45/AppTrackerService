@@ -26,7 +26,7 @@ export class SignUpGateway implements ISignUpGateway {
 
             const params = {
                 Item: {
-                    pk: `${accountId}`,
+                    pk: `${email}`,
                     sk: `${accountId}`,
                     data,
                     createdAt: dayjs().utc().toISOString(),
@@ -35,7 +35,7 @@ export class SignUpGateway implements ISignUpGateway {
                 TableName: 'TurfTracker-dev',
             };
             await this.dynamoDb.put(params).promise();
-            console.log(`SignUpGateway - Shell account created: ${JSON.stringify(data, null, 2)}`);
+            console.log(`SignUpGateway - Shell account created: ${JSON.stringify(params, null, 2)}`);
 
             return data;
         } catch (error) {
