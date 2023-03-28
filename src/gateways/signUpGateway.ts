@@ -72,13 +72,11 @@ export class SignUpGateway implements ISignUpGateway {
         const requestParams = [];
 
         try {
-
-            const accountId = `account:${uuidv4()}`;
             const data = {
                 accountId,
                 courseInfo
             }
-
+            //TODO: add propertiest to record, not overwrite
             //TODO: refactor batch write to helper function so it can be reused
             requestParams.push({
                 PutRequest: {
