@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 export interface ISignUpGateway {
     createShellAccount(firstName: string, lastName: string, email: string): Promise<any>;
+
 }
 
 export class SignUpGateway implements ISignUpGateway {
@@ -13,6 +14,8 @@ export class SignUpGateway implements ISignUpGateway {
     constructor() { }
 
     async createShellAccount(firstName: string, lastName: string, email: string): Promise<any> {
+
+        const requestParams = [];
         try {
             const accountId = `account:${uuidv4()}`;
             const data = {
@@ -24,18 +27,49 @@ export class SignUpGateway implements ISignUpGateway {
                 }
             }
 
-            const params = {
-                Item: {
-                    pk: `${email}`,
-                    sk: `${accountId}`,
-                    data,
-                    createdAt: dayjs().utc().toISOString(),
-                },
-                //TODO: make table name dynamic based on environment
-                TableName: 'TurfTracker-dev',
+            requestParams.push({
+                PutRequest: {
+                    Item: {
+                        pk: `${email}`,
+                        sk: `${accountId}`,
+                        data,
+                        createdAt: dayjs().utc().toISOString(),
+                    }
+                }
+            });
+
+            requestParams.push({
+                PutRequest: {
+                    Item: {
+                        pk: `${accountId}`,
+                        sk: `${accountId}`,
+                        data,
+                        createdAt: dayjs().utc().toISOString(),
+                    }
+                }
+            });
+
+            let params = {
+                RequestItems: {
+                    'TurfTracker-dev': requestParams
+                }
             };
-            await this.dynamoDb.put(params).promise();
-            console.log(`SignUpGateway - Shell account created: ${JSON.stringify(params, null, 2)}`);
+
+
+            // const params = {
+            //     Item: {
+            //         pk: `${email}`,
+            //         sk: `${accountId}`,
+            //         data,
+            //         createdAt: dayjs().utc().toISOString(),
+            //     },
+            //     //TODO: make table name dynamic based on environment
+            //     TableName: 'TurfTracker-dev',
+            // };
+            // await this.dynamoDb.put(params).promise();
+            // console.log(`SignUpGateway - Shell account created: ${JSON.stringify(params, null, 2)}`);
+
+            await this.dynamoDb.batchWrite(params);
 
             return data;
         } catch (error) {
