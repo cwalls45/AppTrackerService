@@ -1,10 +1,11 @@
 import AWS from "aws-sdk";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from 'uuid'
+import { ICourseInfo } from "../entities/account";
 
 export interface ISignUpGateway {
     createShellAccount(firstName: string, lastName: string, email: string): Promise<any>;
-
+    addCourseInfo(courseInfo: ICourseInfo, accountId: string, email: string): Promise<ICourseInfo>;
 }
 
 export class SignUpGateway implements ISignUpGateway {
@@ -13,9 +14,10 @@ export class SignUpGateway implements ISignUpGateway {
 
     constructor() { }
 
-    async createShellAccount(firstName: string, lastName: string, email: string): Promise<any> {
+    async createShellAccount(firstName: string, lastName: string, email: string) {
 
         const requestParams = [];
+
         try {
             const accountId = `account:${uuidv4()}`;
             const data = {
@@ -27,6 +29,7 @@ export class SignUpGateway implements ISignUpGateway {
                 }
             }
 
+            //TODO: refactor batch write to helper function so it can be reused
             requestParams.push({
                 PutRequest: {
                     Item: {
@@ -49,32 +52,68 @@ export class SignUpGateway implements ISignUpGateway {
                 }
             });
 
-            let params = {
+            const params = {
                 RequestItems: {
                     'TurfTracker-dev': requestParams
                 }
             };
 
-
-            // const params = {
-            //     Item: {
-            //         pk: `${email}`,
-            //         sk: `${accountId}`,
-            //         data,
-            //         createdAt: dayjs().utc().toISOString(),
-            //     },
-            //     //TODO: make table name dynamic based on environment
-            //     TableName: 'TurfTracker-dev',
-            // };
-            // await this.dynamoDb.put(params).promise();
-            // console.log(`SignUpGateway - Shell account created: ${JSON.stringify(params, null, 2)}`);
-
-            await this.dynamoDb.batchWrite(params);
+            await this.dynamoDb.batchWrite(params).promise();
 
             return data;
         } catch (error) {
             console.log(`Error occured while creating shell account: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured while creating shell account: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async addCourseInfo(courseInfo: ICourseInfo, accountId: string, email: string) {
+
+        const requestParams = [];
+
+        try {
+
+            const accountId = `account:${uuidv4()}`;
+            const data = {
+                accountId,
+                courseInfo
+            }
+
+            //TODO: refactor batch write to helper function so it can be reused
+            requestParams.push({
+                PutRequest: {
+                    Item: {
+                        pk: `${email}`,
+                        sk: `${accountId}`,
+                        data,
+                        createdAt: dayjs().utc().toISOString(),
+                    }
+                }
+            });
+
+            requestParams.push({
+                PutRequest: {
+                    Item: {
+                        pk: `${accountId}`,
+                        sk: `${accountId}`,
+                        data,
+                        createdAt: dayjs().utc().toISOString(),
+                    }
+                }
+            });
+
+            const params = {
+                RequestItems: {
+                    'TurfTracker-dev': requestParams
+                }
+            };
+
+            await this.dynamoDb.batchWrite(params).promise();
+
+            return data.courseInfo;
+        } catch (error) {
+            console.log(`Error occured while adding course info to account: ${JSON.stringify(error, null, 2)}`)
+            throw new Error(`Error occured while adding course info to account: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }

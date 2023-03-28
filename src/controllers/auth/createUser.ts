@@ -28,7 +28,7 @@ const createUser = async (req: Request, res: Response) => {
         res.send({ user: loggedInUser.AuthenticationResult, accountInfo: signUpResult });
 
     } catch (error) {
-        console.log(error);
+        console.log('There was an error signing up user: ', JSON.stringify(error, null, 2));
         res.status(400).send({ error: `There was an error signing up user: ${JSON.stringify(req.body.signUp, null, 2)}` });
     }
 }

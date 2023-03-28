@@ -1,22 +1,23 @@
 import { Request, Response } from 'express';
 import Joi from 'joi';
 import { ICourseInfo } from '../../entities/account';
-import { CognitoGateway } from "../../gateways/cognitoGateway";
 import { SignUpGateway } from "../../gateways/signUpGateway";
 
 const addCourseInfo = async (req: Request, res: Response) => {
 
-    const cognitoGateway = new CognitoGateway();
     const signUpGateway = new SignUpGateway();
-    const { courseInfo }: { courseInfo: ICourseInfo } = req.body;
+    const { courseInfo, accountId, email }: { courseInfo: ICourseInfo, accountId: string, email: string } = req.body;
 
     try {
 
         validate(courseInfo);
 
+        const response = await signUpGateway.addCourseInfo(courseInfo, accountId, email);
+
+        res.send({ courseInfo: response });
 
     } catch (error) {
-        console.log(error);
+        console.log('There was an error adding user information to account: ', JSON.stringify(error, null, 2));
         res.status(400).send({ error: `There was an error adding user information to account: ${JSON.stringify(req.body.courseInfo, null, 2)}` });
     }
 }
