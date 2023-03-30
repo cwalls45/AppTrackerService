@@ -21,7 +21,6 @@ const createUser = async (req: Request, res: Response) => {
         }
 
         const signUpResult = await signUpGateway.createShellAccount(signUp.firstName, signUp.lastName, signUp.email);
-        console.log('signupUpResult: ', JSON.stringify(signUpResult, null, 2))
 
         const loggedInUser = await cognitoGateway.login(signUp);
 

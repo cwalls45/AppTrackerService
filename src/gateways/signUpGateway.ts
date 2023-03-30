@@ -1,12 +1,13 @@
 import AWS from "aws-sdk";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from 'uuid'
-import { ICourseInfo } from "../entities/account";
+import { ICourseArea, ICourseInfo } from "../entities/account";
 
 export interface ISignUpGateway {
     getAccountRecord(accountId: string): Promise<any>;
     createShellAccount(firstName: string, lastName: string, email: string): Promise<any>;
     addCourseInfo(courseInfo: ICourseInfo, accountId: string, email: string): Promise<ICourseInfo>;
+    addCourseAreas(courseAreas: ICourseArea[], accountId: string, email: string): Promise<ICourseArea[]>;
 }
 
 export class SignUpGateway implements ISignUpGateway {
@@ -136,6 +137,55 @@ export class SignUpGateway implements ISignUpGateway {
         } catch (error) {
             console.log(`Error occured while adding course info to account: ${JSON.stringify(error, null, 2)}, params: ${JSON.stringify(requestParams, null, 2)}`)
             throw new Error(`Error occured while adding course info to account: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async addCourseAreas(courseAreas: ICourseArea[], accountId: string, email: string): Promise<ICourseArea[]> {
+        const requestParams = [];
+
+        try {
+
+            const accountRecords = await this.getAccountRecord(accountId);
+
+            const data = {
+                ...accountRecords.data,
+                courseAreas
+            }
+            //TODO: refactor batch write to helper function so it can be reused
+            requestParams.push({
+                PutRequest: {
+                    Item: {
+                        pk: `${email}`,
+                        sk: `${accountId}`,
+                        data,
+                        createdAt: dayjs().utc().toISOString(),
+                    }
+                }
+            });
+
+            requestParams.push({
+                PutRequest: {
+                    Item: {
+                        pk: `${accountId}`,
+                        sk: `${accountId}`,
+                        data,
+                        createdAt: dayjs().utc().toISOString(),
+                    }
+                }
+            });
+
+            const params = {
+                RequestItems: {
+                    'TurfTracker-dev': requestParams
+                }
+            };
+
+            await this.dynamoDb.batchWrite(params).promise();
+
+            return courseAreas;
+        } catch (error) {
+            console.log(`Error occured while adding course areas to account: ${JSON.stringify(error, null, 2)}, params: ${JSON.stringify(requestParams, null, 2)}`)
+            throw new Error(`Error occured while adding course areas to account: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }

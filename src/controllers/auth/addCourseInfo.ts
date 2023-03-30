@@ -34,7 +34,7 @@ const schema = Joi.object({
 const validate = (courseInfo: ICourseInfo) => {
     const { error } = schema.validate(courseInfo);
     if (error) {
-        throw new Error(`Unable to validate signUp properties: ${courseInfo}`);
+        throw new Error(`Unable to validate courseInfo properties: ${courseInfo}`);
     };
 }
 
