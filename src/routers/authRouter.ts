@@ -1,10 +1,16 @@
 import express from "express";
 import login from "../controllers/auth/login";
-import signUp from "../controllers/auth/signUp";
+import createUser from "../controllers/auth/createUser";
+import addCourseInfo from "../controllers/auth/addCourseInfo";
+import addCourseAreas from "../controllers/auth/addCourseAreas";
 
 const authRouter = express.Router();
 
-authRouter.post('/signUp', signUp);
+authRouter.post('/createUser', createUser);
+
+authRouter.post('/addCourseInfo', addCourseInfo);
+
+authRouter.post('/addCourseAreas', addCourseAreas)
 
 authRouter.post('/login', login);
 

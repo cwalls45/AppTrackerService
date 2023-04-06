@@ -25,6 +25,8 @@ provider:
             - dynamodb:Scan
             - dynamodb:GetItem
             - dynamodb:PutItem
+            - dynamodb:BatchWriteItem
+            - dynamodb:BatchGetItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
