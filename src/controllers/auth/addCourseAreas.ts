@@ -24,12 +24,10 @@ const addCourseAreas = async (req: Request, res: Response) => {
 
 const schema = Joi.array().items(
     Joi.object({
-        courseName: Joi.string().required(),
-        address1: Joi.string().required(),
-        address2: Joi.string(),
-        city: Joi.string().required(),
-        zipCode: Joi.string().required(),
-        state: Joi.string().required(),
+        area: Joi.string().required(),
+        size: Joi.string().required(),
+        sizeUnit: Joi.string().required(),
+        turfType: Joi.string().required(),
     }));
 
 const validate = (courseAreas: ICourseArea[]) => {
