@@ -19,7 +19,7 @@ const login = async (req: Request, res: Response) => {
             res.status(400).send(`Failed to login user: ${user.email}`);
         }
 
-        res.send({ user: loggedInUser.AuthenticationResult });
+        res.send({ user: loggedInUser.AuthenticationResult, email: user.email });
 
     } catch (error) {
         console.log(error);
