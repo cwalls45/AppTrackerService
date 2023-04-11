@@ -25,8 +25,7 @@ const login = async (req: Request, res: Response) => {
 
         res.send({
             credentials: loggedInUser.AuthenticationResult,
-            user: userInfo.data.user,
-            accountId: userInfo.data.accountId
+            account: userInfo.data
         });
 
     } catch (error) {
