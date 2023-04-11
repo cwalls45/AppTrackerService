@@ -4,7 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { ICourseArea, ICourseInfo } from "../entities/account";
 
 export interface ISignUpGateway {
-    getAccountRecord(accountId: string): Promise<any>;
+    getAccountRecordByAccountId(accountId: string): Promise<any>;
+    getAccountRecordByEmail(accountId: string): Promise<any>;
     createShellAccount(firstName: string, lastName: string, email: string): Promise<any>;
     addCourseInfo(courseInfo: ICourseInfo, accountId: string, email: string): Promise<ICourseInfo>;
     addCourseAreas(courseAreas: ICourseArea[], accountId: string, email: string): Promise<ICourseArea[]>;
@@ -16,7 +17,7 @@ export class SignUpGateway implements ISignUpGateway {
 
     constructor() { }
 
-    async getAccountRecord(accountId: string): Promise<any> {
+    async getAccountRecordByAccountId(accountId: string): Promise<any> {
 
         const params = {
             Key: {
@@ -34,6 +35,27 @@ export class SignUpGateway implements ISignUpGateway {
         } catch (error) {
             console.log(`Error occured while getting account record: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured while getting account record: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async getAccountRecordByEmail(email: string): Promise<any> {
+
+        const params = {
+            Key: {
+                pk: email,
+                sk: ''
+            },
+            //TODO: make table name dynamic based on environment
+            TableName: 'TurfTracker-dev',
+        };
+
+        try {
+            const accountRecord = await this.dynamoDb.get(params).promise();
+            //Todo: find way return Item.data with correct type
+            return accountRecord.Item;
+        } catch (error) {
+            console.log(`Error occured while getting account record with email: ${JSON.stringify(error, null, 2)}`)
+            throw new Error(`Error occured while getting account record with email: ${JSON.stringify(error, null, 2)}`);
         }
     }
 
@@ -96,7 +118,7 @@ export class SignUpGateway implements ISignUpGateway {
 
         try {
 
-            const accountRecords = await this.getAccountRecord(accountId);
+            const accountRecords = await this.getAccountRecordByAccountId(accountId);
 
             const data = {
                 ...accountRecords.data,
@@ -145,7 +167,7 @@ export class SignUpGateway implements ISignUpGateway {
 
         try {
 
-            const accountRecords = await this.getAccountRecord(accountId);
+            const accountRecords = await this.getAccountRecordByAccountId(accountId);
 
             const data = {
                 ...accountRecords.data,
