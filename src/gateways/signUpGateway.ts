@@ -43,7 +43,7 @@ export class SignUpGateway implements ISignUpGateway {
         const params = {
             Key: {
                 pk: email,
-                sk: ''
+                sk: email
             },
             //TODO: make table name dynamic based on environment
             TableName: 'TurfTracker-dev',
@@ -79,7 +79,7 @@ export class SignUpGateway implements ISignUpGateway {
                 PutRequest: {
                     Item: {
                         pk: `${email}`,
-                        sk: `${accountId}`,
+                        sk: `${email}`,
                         data,
                         createdAt: dayjs().utc().toISOString(),
                     }
@@ -129,7 +129,7 @@ export class SignUpGateway implements ISignUpGateway {
                 PutRequest: {
                     Item: {
                         pk: `${email}`,
-                        sk: `${accountId}`,
+                        sk: `${email}`,
                         data,
                         createdAt: dayjs().utc().toISOString(),
                     }
@@ -178,7 +178,7 @@ export class SignUpGateway implements ISignUpGateway {
                 PutRequest: {
                     Item: {
                         pk: `${email}`,
-                        sk: `${accountId}`,
+                        sk: `${email}`,
                         data,
                         createdAt: dayjs().utc().toISOString(),
                     }

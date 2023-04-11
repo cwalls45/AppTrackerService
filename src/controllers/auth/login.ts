@@ -3,10 +3,12 @@ import { Request, Response } from 'express';
 import Joi from 'joi';
 import { ISignUp } from "../../entities/auth";
 import { CognitoGateway } from "../../gateways/cognitoGateway";
+import { SignUpGateway } from '../../gateways/signUpGateway';
 
 const login = async (req: Request, res: Response) => {
 
-    const cognitoGateway = new CognitoGateway()
+    const cognitoGateway = new CognitoGateway();
+    const signUpGateway = new SignUpGateway();
 
     try {
         const { user }: { user: ISignUp } = req.body;
@@ -19,7 +21,13 @@ const login = async (req: Request, res: Response) => {
             res.status(400).send(`Failed to login user: ${user.email}`);
         }
 
-        res.send({ user: loggedInUser.AuthenticationResult, email: user.email });
+        const userInfo = await signUpGateway.getAccountRecordByEmail(user.email);
+
+        res.send({
+            credentials: loggedInUser.AuthenticationResult,
+            user: userInfo.data.user,
+            accountId: userInfo.data.accountId
+        });
 
     } catch (error) {
         console.log(error);
