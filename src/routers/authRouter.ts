@@ -4,6 +4,7 @@ import createUser from "../controllers/auth/createUser";
 import addCourseInfo from "../controllers/auth/addCourseInfo";
 import addCourseAreas from "../controllers/auth/addCourseAreas";
 import getUser from "../controllers/auth/getUser";
+import getUserByToken from "../controllers/auth/getUserByToken";
 
 const authRouter = express.Router();
 
@@ -14,6 +15,8 @@ authRouter.post('/addCourseInfo', addCourseInfo);
 authRouter.post('/addCourseAreas', addCourseAreas);
 
 authRouter.get('/user', getUser);
+
+authRouter.get('/user/:accessToken', getUserByToken);
 
 authRouter.post('/login', login);
 
