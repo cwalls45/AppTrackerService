@@ -14,9 +14,9 @@ authRouter.post('/addCourseInfo', addCourseInfo);
 
 authRouter.post('/addCourseAreas', addCourseAreas);
 
-authRouter.get('/user', getUser);
+authRouter.get('/user/:email', getUser);
 
-authRouter.get('/user/:accessToken', getUserByToken);
+authRouter.get('/user/token/:accessToken', getUserByToken);
 
 authRouter.post('/login', login);
 
