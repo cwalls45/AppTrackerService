@@ -1,11 +1,13 @@
 import AWS from 'aws-sdk';
-import { UserType } from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import { GetUserRequest, UserType } from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import { PromiseResult } from 'aws-sdk/lib/request';
 import { ISignUp } from '../entities/auth';
 import { USER_POOL, USER_POOL_CLIENT } from '../environment/path';
 
 export interface ICognitoGateway {
     signUpUser(user: ISignUp): Promise<UserType | undefined>
-    login(user: ISignUp): Promise<AWS.CognitoIdentityServiceProvider.AdminInitiateAuthResponse | AWS.AWSError>
+    login(user: ISignUp): Promise<AWS.CognitoIdentityServiceProvider.AdminInitiateAuthResponse | AWS.AWSError>;
+    getUserEmailByToken(token: string): Promise<PromiseResult<AWS.CognitoIdentityServiceProvider.GetUserResponse, AWS.AWSError>>;
 }
 
 export class CognitoGateway implements ICognitoGateway {
@@ -82,6 +84,21 @@ export class CognitoGateway implements ICognitoGateway {
         } catch (error) {
             console.log(`Error occured while logging in user: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured while logging in user: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async getUserEmailByToken(token: string): Promise<PromiseResult<AWS.CognitoIdentityServiceProvider.GetUserResponse, AWS.AWSError>> {
+        const params: GetUserRequest = {
+            AccessToken: token
+        }
+
+        try {
+            const user = await this.cognito.getUser(params).promise();
+
+            return user;
+        } catch (error) {
+            console.log(`Error occured while getting user by access token: ${JSON.stringify(error, null, 2)}`)
+            throw new Error(`Error occured while getting user by access token: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }
