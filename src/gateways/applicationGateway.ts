@@ -1,12 +1,12 @@
 import AWS from 'aws-sdk';
 import dayjs from "dayjs";
-import { IApplication } from '../entities/application';
+import { IApplicationSummary } from '../entities/application';
 import { IChemicalApplicationForm } from "../entities/chemicalApplication";
 import { formatChemicalApplicationToApplicationEvent } from "../utils/formatChemicalAppToEvent";
 
 export interface IApplicationGateway {
     createApplication(application: IChemicalApplicationForm, accountId: string): Promise<IChemicalApplicationForm>;
-    createApplicationEvent(application: IChemicalApplicationForm, accountId: string): Promise<IApplication>;
+    createApplicationEvent(application: IChemicalApplicationForm, accountId: string): Promise<IApplicationSummary>;
     getApplicationEventsByYear(year: number, accountId: string): Promise<any>;
     getApplicationsByYear(year: number, accountId: string): Promise<any>;
 }
@@ -40,7 +40,7 @@ export class ApplicationGateway implements IApplicationGateway {
         }
     }
 
-    async createApplicationEvent(application: IChemicalApplicationForm, accountId: string): Promise<IApplication> {
+    async createApplicationEvent(application: IChemicalApplicationForm, accountId: string): Promise<IApplicationSummary> {
 
         try {
             const applicationEvent = formatChemicalApplicationToApplicationEvent(application);
