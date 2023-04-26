@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import Joi from 'joi';
 import { v4 as uuidv4 } from 'uuid';
-import { ChemicalApplicationFormProperty, ChemicalProperties, IChemicalApplicationForm } from '../../entities/chemicalApplication';
+import { ChemicalApplicationFormProperty, ChemicalProperties, IApplication } from '../../entities/chemicalApplication';
 import { ApplicationGateway } from '../../gateways/applicationGateway';
 
 const createApplication = async (req: Request, res: Response) => {
 
     const applicationEventGateway = new ApplicationGateway();
-    let { application, accountId } = req.body as { application: IChemicalApplicationForm, accountId: string };
+    let { application, accountId } = req.body as { application: IApplication, accountId: string };
 
     if (!application.id) {
         const id = `application-${uuidv4()}`;
@@ -39,7 +39,7 @@ const schema = Joi.object({
     })),
 });
 
-const validate = (application: IChemicalApplicationForm) => {
+const validate = (application: IApplication) => {
     const { error } = schema.validate(application);
     if (error) {
         throw new Error(`Unable to validate properties of application: ${error}`);
