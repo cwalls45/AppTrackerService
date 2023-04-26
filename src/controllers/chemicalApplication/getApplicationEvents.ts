@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ApplicationEventGateway } from '../../gateways/applicationEventGateway';
+import { ApplicationEventGateway } from '../../gateways/applicationGateway';
 
 const getApplicationEvents = async (req: Request, res: Response) => {
     const year = Number(req.params.year);
