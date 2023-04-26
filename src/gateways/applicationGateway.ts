@@ -11,7 +11,7 @@ export interface IApplicationGateway {
     getApplicationsByYear(year: number, accountId: string): Promise<any>;
 }
 
-export class ApplicationEventGateway implements IApplicationGateway {
+export class ApplicationGateway implements IApplicationGateway {
 
     private dynamoDb = new AWS.DynamoDB.DocumentClient();
 

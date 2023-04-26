@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import Joi from 'joi';
 import { v4 as uuidv4 } from 'uuid';
 import { ChemicalApplicationFormProperty, ChemicalProperties, IChemicalApplicationForm } from '../../entities/chemicalApplication';
-import { ApplicationEventGateway } from '../../gateways/applicationGateway';
+import { ApplicationGateway } from '../../gateways/applicationGateway';
 
 const createApplication = async (req: Request, res: Response) => {
 
-    const applicationEventGateway = new ApplicationEventGateway();
+    const applicationEventGateway = new ApplicationGateway();
     let { application, accountId } = req.body as { application: IChemicalApplicationForm, accountId: string };
 
     if (!application.id) {

@@ -5,6 +5,7 @@ import getCompaniesByProductName from '../controllers/chemicalApplication/getCom
 import getByPartialChemicalName from '../controllers/chemicalApplication/getPartialChemicalName';
 import addInventory from '../controllers/inventory/addInventory';
 import getAllInventory from '../controllers/inventory/getAllInventory';
+import getApplications from '../controllers/chemicalApplication/getApplications';
 
 const router = express.Router();
 
@@ -15,6 +16,8 @@ router.get('/partialChemicalName/:chemical', getByPartialChemicalName);
 router.get('/companyNamesByProduct/:productName', getCompaniesByProductName);
 
 router.post('/createApplication', createApplication);
+
+router.get('/getApplications/:year/:accountId', getApplications);
 
 router.post('/addInventory', addInventory);
 
