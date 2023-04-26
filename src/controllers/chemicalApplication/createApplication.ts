@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Joi from 'joi';
 import { v4 as uuidv4 } from 'uuid';
-import { ChemicalApplicationFormProperty, ChemicalProperties, IApplication } from '../../entities/chemicalApplication';
+import { ApplicationProperty, ChemicalProperties, IApplication } from '../../entities/chemicalApplication';
 import { ApplicationGateway } from '../../gateways/applicationGateway';
 
 const createApplication = async (req: Request, res: Response) => {
@@ -25,13 +25,13 @@ const createApplication = async (req: Request, res: Response) => {
 };
 
 const schema = Joi.object({
-    [ChemicalApplicationFormProperty.ID]: Joi.string().required(),
-    [ChemicalApplicationFormProperty.DATE_OF_APPLICATION]: Joi.string().required(),
-    [ChemicalApplicationFormProperty.AREA_OF_APPLICATION]: Joi.array().items(Joi.string()).required(),
-    [ChemicalApplicationFormProperty.TOTAL_AREA_OF_APP]: Joi.string().pattern(/^[0-9]+$/).required(),
-    [ChemicalApplicationFormProperty.TOTAL_AREA_OF_APP_UNIT]: Joi.string().required(),
-    [ChemicalApplicationFormProperty.TARGET_PESTS]: Joi.array().items(Joi.string()).required(),
-    [ChemicalApplicationFormProperty.CHEMICALS]: Joi.array().items(Joi.object({
+    [ApplicationProperty.ID]: Joi.string().required(),
+    [ApplicationProperty.DATE_OF_APPLICATION]: Joi.string().required(),
+    [ApplicationProperty.AREA_OF_APPLICATION]: Joi.array().items(Joi.string()).required(),
+    [ApplicationProperty.TOTAL_AREA_OF_APP]: Joi.string().pattern(/^[0-9]+$/).required(),
+    [ApplicationProperty.TOTAL_AREA_OF_APP_UNIT]: Joi.string().required(),
+    [ApplicationProperty.TARGET_PESTS]: Joi.array().items(Joi.string()).required(),
+    [ApplicationProperty.CHEMICALS]: Joi.array().items(Joi.object({
         [ChemicalProperties.CHEMICAL_COMPANY]: Joi.string().required(),
         [ChemicalProperties.CHEMICAL_NAME]: Joi.string().required(),
         [ChemicalProperties.AMOUNT]: Joi.string().pattern(/^[0-9]+$/).required(),
