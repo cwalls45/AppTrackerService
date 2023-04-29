@@ -28,13 +28,13 @@ const schema = Joi.object({
     [ApplicationProperty.ID]: Joi.string().required(),
     [ApplicationProperty.DATE_OF_APPLICATION]: Joi.string().required(),
     [ApplicationProperty.AREA_OF_APPLICATION]: Joi.array().items(Joi.string()).required(),
-    [ApplicationProperty.TOTAL_AREA_OF_APP]: Joi.string().pattern(/^[0-9]+$/).required(),
+    [ApplicationProperty.TOTAL_AREA_OF_APP]: Joi.string().pattern(/^[1-9]\d*(\.\d+)?$/).required(),
     [ApplicationProperty.TOTAL_AREA_OF_APP_UNIT]: Joi.string().required(),
     [ApplicationProperty.TARGET_PESTS]: Joi.array().items(Joi.string()).required(),
     [ApplicationProperty.CHEMICALS]: Joi.array().items(Joi.object({
         [ChemicalProperties.CHEMICAL_COMPANY]: Joi.string().required(),
         [ChemicalProperties.CHEMICAL_NAME]: Joi.string().required(),
-        [ChemicalProperties.AMOUNT]: Joi.string().pattern(/^[0-9]+$/).required(),
+        [ChemicalProperties.AMOUNT]: Joi.string().pattern(/^[1-9]\d*(\.\d+)?$/).required(),
         [ChemicalProperties.UNITS]: Joi.string().required()
     })),
 });
