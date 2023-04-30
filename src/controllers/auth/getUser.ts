@@ -4,6 +4,7 @@ import { SignUpGateway } from '../../gateways/signUpGateway';
 const getUser = async (req: Request, res: Response) => {
 
     const signUpGateway = new SignUpGateway();
+
     const { email } = req.params;
 
     try {

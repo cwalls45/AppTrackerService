@@ -1,7 +1,7 @@
-import { IChemicalApplicationForm } from "../entities/chemicalApplication";
-import { IApplication } from "../entities/application";
+import { IApplication } from "../entities/chemicalApplication";
+import { IApplicationSummary } from "../entities/application";
 
-export const formatChemicalApplicationToApplicationEvent = (chemApp: IChemicalApplicationForm): IApplication => {
+export const formatChemicalApplicationToApplicationEvent = (chemApp: IApplication): IApplicationSummary => {
 
     if (!chemApp.id) {
         throw new Error(`ERROR: There must be an id on ${JSON.stringify(chemApp, null, 2)}`);

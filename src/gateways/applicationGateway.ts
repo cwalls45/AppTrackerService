@@ -1,22 +1,23 @@
 import AWS from 'aws-sdk';
 import dayjs from "dayjs";
-import { IApplication } from '../entities/application';
-import { IChemicalApplicationForm } from "../entities/chemicalApplication";
+import { IApplicationSummary } from '../entities/application';
+import { IApplication } from "../entities/chemicalApplication";
 import { formatChemicalApplicationToApplicationEvent } from "../utils/formatChemicalAppToEvent";
 
 export interface IApplicationGateway {
-    createApplication(application: IChemicalApplicationForm, accountId: string): Promise<IChemicalApplicationForm>;
-    createApplicationEvent(application: IChemicalApplicationForm, accountId: string): Promise<IApplication>;
+    createApplication(application: IApplication, accountId: string): Promise<IApplication>;
+    createApplicationEvent(application: IApplication, accountId: string): Promise<IApplicationSummary>;
     getApplicationEventsByYear(year: number, accountId: string): Promise<any>;
+    getApplicationsByYear(year: number, accountId: string): Promise<any>;
 }
 
-export class ApplicationEventGateway implements IApplicationGateway {
+export class ApplicationGateway implements IApplicationGateway {
 
     private dynamoDb = new AWS.DynamoDB.DocumentClient();
 
     constructor() { }
 
-    async createApplication(application: IChemicalApplicationForm, accountId: string): Promise<IChemicalApplicationForm> {
+    async createApplication(application: IApplication, accountId: string): Promise<IApplication> {
 
         try {
             const params = {
@@ -30,7 +31,7 @@ export class ApplicationEventGateway implements IApplicationGateway {
                 TableName: 'TurfTracker-dev',
             };
             await this.dynamoDb.put(params).promise();
-            console.log(`Application created: ${JSON.stringify(application, null, 2)}`);
+            console.log(`ApplicationGateway - Application created: ${JSON.stringify(application, null, 2)}`);
 
             return application;
         } catch (error) {
@@ -39,7 +40,7 @@ export class ApplicationEventGateway implements IApplicationGateway {
         }
     }
 
-    async createApplicationEvent(application: IChemicalApplicationForm, accountId: string): Promise<IApplication> {
+    async createApplicationEvent(application: IApplication, accountId: string): Promise<IApplicationSummary> {
 
         try {
             const applicationEvent = formatChemicalApplicationToApplicationEvent(application);
@@ -60,7 +61,7 @@ export class ApplicationEventGateway implements IApplicationGateway {
                 TableName: 'TurfTracker-dev'
             };
             await this.dynamoDb.put(params).promise();
-            console.log(`Application Event created: ${JSON.stringify(applicationEvent, null, 2)}`);
+            console.log(`ApplicationGateway - Application Event created: ${JSON.stringify(applicationEvent, null, 2)}`);
 
             return applicationEvent;
         } catch (error) {
@@ -82,7 +83,7 @@ export class ApplicationEventGateway implements IApplicationGateway {
             // TODO: make sure there is not a more efficent way to get all application events
             const applicationEvents = await this.dynamoDb.query(params).promise();
             //TODO: revist below to make this more clear
-            console.log('applictationEvent', JSON.stringify(applicationEvents, null, 2))
+            console.log('ApplicationGateway - applictationEvents: ', JSON.stringify(applicationEvents, null, 2))
 
             return applicationEvents.Items?.map((appEvent) => ({
                 ...appEvent.data
@@ -90,6 +91,31 @@ export class ApplicationEventGateway implements IApplicationGateway {
         } catch (error) {
             console.log(`Error occured in fetching application event: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured in fetching application event: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async getApplicationsByYear(year: number, accountId: string): Promise<any> {
+
+        const params = {
+            //TODO: make table name dynamic based on environment
+            TableName: 'TurfTracker-dev',
+            KeyConditionExpression: "pk = :pk",
+            ExpressionAttributeValues: {
+                ":pk": `application:${accountId}:${year}`,
+            },
+        };
+
+        try {
+            const applications = await this.dynamoDb.query(params).promise();
+
+            //TODO: revist below to make this more clear
+            console.log('ApplicationGateway - applications: ', JSON.stringify(applications, null, 2))
+            return applications.Items?.map(app => ({
+                ...app.data
+            }));
+        } catch (error) {
+            console.log(`Error occured in fetching applications: ${JSON.stringify(error, null, 2)}`)
+            throw new Error(`Error occured in fetching applications: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }
