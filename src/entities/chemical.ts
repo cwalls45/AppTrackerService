@@ -26,6 +26,7 @@ export interface IChemicalCompanySummary {
     companyName: string;
     activeIngredients: IActiveIngredient[];
     formulations: { formulation: string }[];
+    //TODO: remove optional flag
 };
 
 export interface IActiveIngredient {
@@ -33,4 +34,22 @@ export interface IActiveIngredient {
     activeIngredient: string;
     activeIngredientPercent: number;
     cas_Number: string;
+}
+
+export interface IPesticideInformation {
+    epaRegistrationNumber: string;
+    productName: string;
+    productStatus: string;
+    signalWord: string;
+    formulations: string[];
+    activeIngredients: IActiveIngredient[];
+    alternateBrandNames: string[];
+    approvedSites: string[];
+    approvedPests: string[]
+    companyInformation: IChemicalCompanyInformation;
+};
+
+export interface IChemicalCompanyInformation {
+    companyName: string;
+    companyNumber: number;
 }
