@@ -49,7 +49,28 @@ export interface IPesticideInformation {
     companyInformation: IChemicalCompanyInformation;
 };
 
+export interface csvPesticideData {
+    epaRegistrationNumber: string;
+    productName: string;
+    companyNumber: string;
+    companyName: string;
+    productStatus: string;
+    signalWord: string;
+    alternateBrandNames: string[];
+    approvedSites: string;
+    approvedPests: string;
+};
+
 export interface IChemicalCompanyInformation {
     companyName: string;
+    contactPerson: string;
+    divisionName: string;
+    phoneNumber: string;
+    email: string;
+    street: string;
+    poBox: string;
+    city: string;
+    state: string;
+    zipCode: string;
     companyNumber: number;
 }
