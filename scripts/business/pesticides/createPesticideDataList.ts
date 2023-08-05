@@ -18,7 +18,7 @@ async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
     const pesticideList: IPesticideInformation[] = [];
     const erroredEPANumbers: string[] = []
 
-    for (const record of parsedPesticideList.slice(0, 20)) {
+    for (const record of parsedPesticideList) {
         try {
             const mainResult = await axios.get(`https://ordspub.epa.gov/ords/pesticides/ppls/${record.epaRegistrationNumber}`);
 
