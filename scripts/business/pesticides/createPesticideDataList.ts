@@ -1,7 +1,9 @@
 import fs from 'fs/promises';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
-import { CsvPesticideData, IActiveIngredient, IChemicalCompanyInformation, IPesticideInformation } from '../../../src/entities/chemical';
+import { CsvPesticideData, IActiveIngredient, IChemicalCompanyInformation, IPesticideInformation, IPesticidePdf } from '../../../src/entities/chemical';
+
+// npx ts-node scripts/business/pesticides/createPesticideDataList.ts
 
 const onlyContainsNumbersOrHyphens = /^[\d-]+$/;
 
@@ -12,11 +14,15 @@ async function main() {
 }
 
 async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
+
+    const pesticideList: IPesticideInformation[] = [];
     const erroredEPANumbers: string[] = []
 
-    for (const record of parsedPesticideList) {
+    for (const record of parsedPesticideList.slice(0, 20)) {
         try {
             const mainResult = await axios.get(`https://ordspub.epa.gov/ords/pesticides/ppls/${record.epaRegistrationNumber}`);
+
+            console.log('DATA: ', mainResult.data.items[0]);
 
             if (isEmpty(mainResult.data.items)) {
                 throw new Error('Could not find pesticide');
@@ -29,13 +35,29 @@ async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
                 .map((activeIngredient: IActiveIngredient) => activeIngredient);
 
             const alternateBrandNames: string[] = mainResult.data.items[0].altbrandnames
-                .map((alternateBrand: { altbrandname: string }) => alternateBrand.altbrandname)
+                .map((alternateBrand: { altbrandname: string }) => alternateBrand.altbrandname);
+
+            const inactiveBrandNames: string[] = mainResult.data.items[0].inactive_brand_names
+                .map((inactiveBrand: { inactive_brand_name: string }) => inactiveBrand.inactive_brand_name)
 
             const approvedSites: string[] = mainResult.data.items[0].sites
                 .map((site: { site: string }) => site.site);
 
             const approvedPests: string[] = mainResult.data.items[0].pests
                 .map((pest: { pest: string }) => pest.pest);
+
+            const pdfFiles: IPesticidePdf[] = mainResult.data.items[0].pdffiles
+                .map((file:
+                    {
+                        epa_reg_num: string;
+                        pdffile: string;
+                        pdffile_accepted_date: string;
+                    }) => ({
+                        epaRegistrationNumber: file.epa_reg_num,
+                        pdfFile: file.pdffile,
+                        pdfFileAcceptedDate: file.pdffile_accepted_date
+                    })
+                );
 
             const companyInformation: IChemicalCompanyInformation = {
                 companyName: record.companyName,
@@ -47,7 +69,10 @@ async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
                 state: mainResult.data.items[0].companyinfo[0].state,
                 zipCode: mainResult.data.items[0].companyinfo[0].zip_code,
                 companyNumber: record.companyNumber,
-            }
+            };
+
+            const pesticideTypes: string[] = mainResult.data.items[0].types
+                .map((type: { type: string }) => type.type);
 
             const pesticideInfo: IPesticideInformation = {
                 epaRegistrationNumber: record.epaRegistrationNumber,
@@ -56,13 +81,17 @@ async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
                 signalWord: mainResult.data.items[0].signal_word,
                 formulations,
                 activeIngredients,
+                inactiveBrandNames,
                 alternateBrandNames,
+                pdfFiles,
                 approvedSites,
                 approvedPests,
-                companyInformation
+                companyInformation,
+                pesticideTypes
             };
 
-            console.log('DATA: ', mainResult.data.items[0]);
+            pesticideList.push(pesticideInfo);
+
         } catch (error) {
             console.log('ERROR making query: ', error);
             erroredEPANumbers.push(record.epaRegistrationNumber);
@@ -71,8 +100,8 @@ async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
         await delay(100);
     }
 
-    // // await fs.appendFile('./scripts/business/pesticides/erroredPesticides.json', JSON.stringify(erroredEPANumbers));
-    // // await fs.appendFile('./scripts/business/pesticides/pesticideList.json', JSON.stringify(pesticides));
+    await fs.appendFile('./scripts/business/pesticides/erroredPesticides.json', JSON.stringify(erroredEPANumbers));
+    await fs.appendFile('./scripts/business/pesticides/pesticideList.json', JSON.stringify(pesticideList, null, 2));
 
     // return pesticides;
 }

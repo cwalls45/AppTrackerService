@@ -44,10 +44,19 @@ export interface IPesticideInformation {
     formulations: string[];
     activeIngredients: IActiveIngredient[];
     alternateBrandNames: string[];
+    inactiveBrandNames: string[];
+    pdfFiles: IPesticidePdf[];
     approvedSites: string[];
-    approvedPests: string[]
+    approvedPests: string[];
     companyInformation: IChemicalCompanyInformation;
+    pesticideTypes: string[];
 };
+
+export interface IPesticidePdf {
+    epaRegistrationNumber: string;
+    pdfFile: string;
+    pdfFileAcceptedDate: string;
+}
 
 export interface CsvPesticideData {
     epaRegistrationNumber: string;
