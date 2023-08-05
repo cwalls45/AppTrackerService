@@ -1,25 +1,23 @@
 import fs from 'fs/promises';
-import { IPlaybooksChemicalsList } from '../playbooks/sortChemicalsIntoFertAndPesticide';
 import axios from 'axios';
 import { isEmpty } from 'lodash';
-import { IActiveIngredient, IChemicalCompanyInformation, IPesticideInformation } from '../../../src/entities/chemical';
+import { CsvPesticideData, IActiveIngredient, IChemicalCompanyInformation, IPesticideInformation } from '../../../src/entities/chemical';
 
 const onlyContainsNumbersOrHyphens = /^[\d-]+$/;
 
-function main() {
-    return createPesticideList().then((pesticides) => pesticides);
+async function main() {
+    const unParsedPesticides = await fs.readFile('./scripts/business/playbooks/lists/csvPesticides.json');
+    const parsedPesticideList: CsvPesticideData[] = JSON.parse(unParsedPesticides.toString());
+    return await createPesticideList(parsedPesticideList);
 }
 
-async function createPesticideList() {
+async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
     const erroredEPANumbers: string[] = []
-    const unParsedPesticides = await fs.readFile('./scripts/business/playbooks/lists/pesticidesFromPlaybooks.json');
-    const parsedPesticideList: IPlaybooksChemicalsList[] = JSON.parse(unParsedPesticides.toString());
-    const epaNumbers = getEPANumber(parsedPesticideList);
 
-    const epaPromises = epaNumbers.map(async (epaNumber) => {
+    for (const record of parsedPesticideList) {
         try {
-            const mainResult = await axios.get(`https://ordspub.epa.gov/ords/pesticides/ppls/${epaNumber}`);
-            const supplementalResult = await axios.get(`https://ordspub.epa.gov/ords/pesticides/apprilapi/?q=%7b%22reg_num%22:%22${epaNumber}%22%7d`);
+            const mainResult = await axios.get(`https://ordspub.epa.gov/ords/pesticides/ppls/${record.epaRegistrationNumber}`);
+
             if (isEmpty(mainResult.data.items)) {
                 throw new Error('Could not find pesticide');
             };
@@ -40,13 +38,20 @@ async function createPesticideList() {
                 .map((pest: { pest: string }) => pest.pest);
 
             const companyInformation: IChemicalCompanyInformation = {
-                companyName: mainResult.data.items[0].companyinfo.name || supplementalResult.data.items[0].company_name,
-                companyNumber: supplementalResult.data.items[0].company_num || ''
+                companyName: record.companyName,
+                contactPerson: mainResult.data.items[0].companyinfo[0].contact_person,
+                phoneNumber: mainResult.data.items[0].companyinfo[0].phone,
+                email: mainResult.data.items[0].companyinfo[0].email,
+                street: mainResult.data.items[0].companyinfo[0].street,
+                city: mainResult.data.items[0].companyinfo[0].city,
+                state: mainResult.data.items[0].companyinfo[0].state,
+                zipCode: mainResult.data.items[0].companyinfo[0].zip_code,
+                companyNumber: record.companyNumber,
             }
 
             const pesticideInfo: IPesticideInformation = {
-                epaRegistrationNumber: supplementalResult.data.items[0].reg_num,
-                productName: supplementalResult.data.items[0].product_name,
+                epaRegistrationNumber: record.epaRegistrationNumber,
+                productName: record.productName,
                 productStatus: mainResult.data.items[0].product_status,
                 signalWord: mainResult.data.items[0].signal_word,
                 formulations,
@@ -57,37 +62,25 @@ async function createPesticideList() {
                 companyInformation
             };
 
-            // return [mainResult.data.items[0], supplementalResult.data.items[0]];
-            return pesticideInfo;
+            console.log('DATA: ', mainResult.data.items[0]);
         } catch (error) {
             console.log('ERROR making query: ', error);
-            erroredEPANumbers.push(epaNumber);
+            erroredEPANumbers.push(record.epaRegistrationNumber);
         }
-    });
 
-    const pesticides = (await Promise.all(epaPromises)).filter(pesticide => !isEmpty(pesticide));
+        await delay(100);
+    }
 
-    fs.appendFile('./scripts/business/pesticides/erroredPesticides.json', JSON.stringify(erroredEPANumbers));
-    fs.appendFile('./scripts/business/pesticides/pesticideList.json', JSON.stringify(pesticides));
+    // // await fs.appendFile('./scripts/business/pesticides/erroredPesticides.json', JSON.stringify(erroredEPANumbers));
+    // // await fs.appendFile('./scripts/business/pesticides/pesticideList.json', JSON.stringify(pesticides));
 
-    return pesticides;
+    // return pesticides;
 }
 
-function getEPANumber(list: IPlaybooksChemicalsList[]): string[] {
-    const itemsWithEPANumber = list.filter(item => {
-        const epaNumber = getSubstring(item.Text, '(', ')').trim();
-        return onlyContainsNumbersOrHyphens.test(epaNumber) && epaNumber.length > 2
-    });
-    return [...new Set(itemsWithEPANumber.map(item => getSubstring(item.Text, '(', ')').trim()))];
+function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getSubstring(string: string, char1: string, char2: string) {
-    return string.slice(
-        string.indexOf(char1) + 1,
-        string.lastIndexOf(char2),
-    );
-}
-
-main().then((result) => console.log('Result: ', JSON.stringify(result, null, 2))).catch((err) => {
-    console.log('ERROR: ', err);
-});
+main()
+    .then(() => console.log('Completed'))
+    .catch((err) => console.log('ERROR: ', err));

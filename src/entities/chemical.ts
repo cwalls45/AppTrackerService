@@ -63,13 +63,11 @@ export interface CsvPesticideData {
 export interface IChemicalCompanyInformation {
     companyName: string;
     contactPerson: string;
-    divisionName: string;
     phoneNumber: string;
     email: string;
     street: string;
-    poBox: string;
     city: string;
     state: string;
     zipCode: string;
-    companyNumber: number;
+    companyNumber: string;
 }
