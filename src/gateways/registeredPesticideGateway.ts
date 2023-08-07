@@ -18,8 +18,8 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
         try {
             const params = {
                 Item: {
-                    pk: `registeredPesticide:${pesticide.epaRegistrationNumber}`,
-                    sk: `registeredPesticide:${pesticide.productName}`,
+                    pk: `registeredPesticide:${pesticide.companyInformation.companyName}`,
+                    sk: `registeredPesticide:${pesticide.epaRegistrationNumber}`,
                     data: pesticide,
                     createdAt: dayjs().utc().toISOString(),
                 },
@@ -35,13 +35,13 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
         }
     }
 
-    async getRegisteredPesticide(epaNumber: string, productName: string): Promise<any> {
+    async getRegisteredPesticide(epaNumber: string, companyName: string): Promise<any> {
         try {
 
             const params = {
                 Key: {
-                    pk: `registeredPesticide:${epaNumber}`,
-                    sk: `registeredPesticide:${productName}`,
+                    pk: `registeredPesticide:${companyName}`,
+                    sk: `registeredPesticide:${epaNumber}`,
                 },
                 //TODO: make table name dynamic based on environment
                 TableName: 'TurfTracker-RegisteredPesticides-dev',
