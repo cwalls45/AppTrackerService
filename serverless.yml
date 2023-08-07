@@ -8,7 +8,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs18.x
   region: us-east-1
   stage: dev
   environment:
@@ -85,6 +85,21 @@ resources:
         Type: AWS::DynamoDB::Table
         Properties:
           TableName: TurfTracker-${self:provider.stage}
+          BillingMode: PAY_PER_REQUEST
+          AttributeDefinitions:
+            - AttributeName: pk
+              AttributeType: S
+            - AttributeName: sk
+              AttributeType: S
+          KeySchema: 
+            - AttributeName: pk
+              KeyType: HASH
+            - AttributeName: sk
+              KeyType: RANGE
+      registeredPesticidesDynamoTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: TurfTracker-RegisteredPesticides-${self:provider.stage}
           BillingMode: PAY_PER_REQUEST
           AttributeDefinitions:
             - AttributeName: pk

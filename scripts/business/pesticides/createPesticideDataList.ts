@@ -5,8 +5,6 @@ import { CsvPesticideData, IActiveIngredient, IChemicalCompanyInformation, IPest
 
 // npx ts-node scripts/business/pesticides/createPesticideDataList.ts
 
-const onlyContainsNumbersOrHyphens = /^[\d-]+$/;
-
 async function main() {
     const unParsedPesticides = await fs.readFile('./scripts/business/playbooks/lists/csvPesticides.json');
     const parsedPesticideList: CsvPesticideData[] = JSON.parse(unParsedPesticides.toString());
@@ -16,7 +14,7 @@ async function main() {
 async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
 
     const pesticideList: IPesticideInformation[] = [];
-    const erroredEPANumbers: string[] = []
+    const erroredPesticideList: CsvPesticideData[] = []
 
     for (const record of parsedPesticideList) {
         try {
@@ -25,7 +23,7 @@ async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
             console.log('DATA: ', mainResult.data.items[0]);
 
             if (isEmpty(mainResult.data.items)) {
-                throw new Error('Could not find pesticide');
+                throw new Error(`Could not find pesticide: ${record.epaRegistrationNumber}`);
             };
 
             const formulations: string[] = mainResult.data.items[0].formulations
@@ -94,16 +92,14 @@ async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
 
         } catch (error) {
             console.log('ERROR making query: ', error);
-            erroredEPANumbers.push(record.epaRegistrationNumber);
+            erroredPesticideList.push(record);
         }
 
-        await delay(100);
+        await delay(150);
     }
 
-    await fs.appendFile('./scripts/business/pesticides/erroredPesticides.json', JSON.stringify(erroredEPANumbers));
-    await fs.appendFile('./scripts/business/pesticides/pesticideList.json', JSON.stringify(pesticideList, null, 2));
-
-    // return pesticides;
+    await fs.appendFile('./scripts/business/pesticides/data/erroredPesticides.json', JSON.stringify(erroredPesticideList, null, 1));
+    await fs.appendFile('./scripts/business/pesticides/data/pesticideList.json', JSON.stringify(pesticideList, null, 1));
 }
 
 function delay(ms: number) {
