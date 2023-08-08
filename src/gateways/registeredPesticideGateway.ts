@@ -4,7 +4,7 @@ import { IPesticideInformation } from "../entities/chemical";
 
 export interface IRegisteredPesticideGateway {
     addRegisteredPesticideFromFile(pesticide: IPesticideInformation): Promise<void>;
-    getRegisteredPesticide(epaNumber: string, productName: string): Promise<any>;
+    getRegisteredPesticidesByCompany(epaNumber: string, productName: string): Promise<any>;
 };
 
 export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
@@ -35,27 +35,27 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
         }
     }
 
-    async getRegisteredPesticide(epaNumber: string, companyName: string): Promise<any> {
+    async getRegisteredPesticidesByCompany(epaNumber: string, companyName: string): Promise<any> {
+        const params = {
+            //TODO: make table name dynamic based on environment
+            TableName: 'TurfTracker-RegisteredPesticides-dev',
+            KeyConditionExpression: "pk = :pk",
+            ExpressionAttributeValues: {
+                ":pk": `registeredPesticide:${companyName}`,
+            },
+        };
+
         try {
+            const response = await this.dynamoDb.query(params).promise();
+            console.log(`RegisteredPesticideGateway - Registered Pesticides fetched: ${JSON.stringify(response, null, 2)}`);
 
-            const params = {
-                Key: {
-                    pk: `registeredPesticide:${companyName}`,
-                    sk: `registeredPesticide:${epaNumber}`,
-                },
-                //TODO: make table name dynamic based on environment
-                TableName: 'TurfTracker-RegisteredPesticides-dev',
-            };
-
-            const response = await this.dynamoDb.get(params).promise();
-            console.log(`RegisteredPesticideGateway - Registered Pesticidefetched: ${JSON.stringify(response, null, 2)}`);
-
-            //Todo: find way return IInventory
-            return response.Item;
+            return response.Items?.map(res => ({
+                ...res.data
+            }));
 
         } catch (error) {
-            console.log(`Error occured in fetching Registered Pesticide: ${JSON.stringify(error, null, 2)}`)
-            throw new Error(`Error occured in fetching Registered Pesticide: ${JSON.stringify(error, null, 2)}`);
+            console.log(`Error occured in fetching Registered Pesticides: ${JSON.stringify(error, null, 2)}`)
+            throw new Error(`Error occured in fetching Registered Pesticides: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }

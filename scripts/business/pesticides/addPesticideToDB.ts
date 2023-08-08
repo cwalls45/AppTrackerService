@@ -9,7 +9,7 @@ async function main() {
     const unParsedPesticides = await fs.readFile('./scripts/business/pesticides/data/pesticideList.json');
     const parsedPesticideList: IPesticideInformation[] = JSON.parse(unParsedPesticides.toString());
     pesticideLength = parsedPesticideList.length;
-    return await addPesticidesToDB(parsedPesticideList.slice(0, 1))
+    return await addPesticidesToDB(parsedPesticideList)
 }
 
 async function addPesticidesToDB(pesticideList: IPesticideInformation[]) {
