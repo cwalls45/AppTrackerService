@@ -35,7 +35,7 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
         }
     }
 
-    async getRegisteredPesticidesByCompany(epaNumber: string, companyName: string): Promise<any> {
+    async getRegisteredPesticidesByCompany(companyName: string): Promise<any> {
         const params = {
             //TODO: make table name dynamic based on environment
             TableName: 'TurfTracker-RegisteredPesticides-dev',
