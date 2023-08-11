@@ -1,11 +1,12 @@
 import AWS from "aws-sdk";
 import dayjs from "dayjs";
-import { IPesticideInformation } from "../entities/chemical";
+import { IActiveIngredientSummary, IPesticideInformation, IRegisteredPesticideSummary } from "../entities/chemical";
 
 export interface IRegisteredPesticideGateway {
     addRegisteredPesticideFromFile(pesticide: IPesticideInformation): Promise<void>;
     getRegisteredPesticidesByCompany(epaNumber: string, productName: string): Promise<any>;
     createPesticideCompanyRecord(companies: string[]): Promise<void>;
+    createRegisteredPesticideSummary(pesticide: IPesticideInformation): Promise<void>;
 };
 
 export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
@@ -31,8 +32,8 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
             console.log(`RegisteredPesticideGateway - Registered Pesticide Added: ${JSON.stringify(pesticide, null, 2)}`);
 
         } catch (error) {
-            console.log(`Error occured in adding Registered Pesticide: ${JSON.stringify(error, null, 2)}`)
-            throw new Error(`Error occured in adding Registered Pesticide: ${JSON.stringify(error, null, 2)}`);
+            console.log(`Error occured in adding Registered Pesticide: ${error}`)
+            throw new Error(`Error occured in adding Registered Pesticide: ${error}`);
         }
     }
 
@@ -55,8 +56,8 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
             }));
 
         } catch (error) {
-            console.log(`Error occured in fetching Registered Pesticides: ${JSON.stringify(error, null, 2)}`)
-            throw new Error(`Error occured in fetching Registered Pesticides: ${JSON.stringify(error, null, 2)}`);
+            console.log(`Error occured in fetching Registered Pesticides: ${error}`)
+            throw new Error(`Error occured in fetching Registered Pesticides: ${error}`);
         }
     }
 
@@ -78,8 +79,54 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
             console.log(`RegisteredPesticideGateway - Company Record created: ${JSON.stringify(params, null, 2)}`);
 
         } catch (error) {
-            console.log(`Error occured creating company record: ${JSON.stringify(error, null, 2)}`)
-            throw new Error(`Error occured creating company record: ${JSON.stringify(error, null, 2)}`);
+            console.log(`Error occured creating company record: ${error}`)
+            throw new Error(`Error occured creating company record: ${error}`);
+        }
+    }
+
+    async createRegisteredPesticideSummary(pesticide: IPesticideInformation): Promise<void> {
+        const {
+            epaRegistrationNumber,
+            productName,
+            productStatus,
+            signalWord,
+            formulations,
+            activeIngredients,
+            companyInformation: { companyName }
+        } = pesticide;
+
+        const activeIngredientSummaries: IActiveIngredientSummary[] = activeIngredients.map((ingredient) => ({
+            active_ing: ingredient.active_ing,
+            active_ing_percent: ingredient.active_ing_percent
+        } || null))
+        const data: IRegisteredPesticideSummary = {
+            epaRegistrationNumber,
+            productName,
+            productStatus,
+            signalWord,
+            formulations,
+            activeIngredients: activeIngredientSummaries,
+            companyName
+        };
+
+        const params = {
+            Item: {
+                pk: 'registeredPesticideSummary',
+                sk: `registeredPesticideSummary:${pesticide.epaRegistrationNumber}`,
+                data,
+                createdAt: dayjs().utc().toISOString(),
+            },
+            //TODO: make table name dynamic based on environment
+            TableName: 'TurfTracker-RegisteredPesticides-dev',
+        }
+
+        try {
+            await this.dynamoDb.put(params).promise();
+            console.log(`RegisteredPesticideGateway - Registered Pesticide Summary: ${JSON.stringify(params, null, 2)}`);
+
+        } catch (error) {
+            console.log(`Error occured creating Registered Pesticide Summary: ${error}`);
+            throw new Error(`Error occured creating Registered Pesticide Summary: ${error}`);
         }
     }
 }

@@ -31,10 +31,15 @@ export interface IChemicalCompanySummary {
 
 export interface IActiveIngredient {
     pc_Code: string;
-    activeIngredient: string;
-    activeIngredientPercent: number;
+    active_ing: string;
+    active_ing_percent: number;
     cas_Number: string;
-}
+};
+
+export interface IActiveIngredientSummary {
+    active_ing: string;
+    active_ing_percent: number;
+};
 
 export interface IPesticideInformation {
     epaRegistrationNumber: string;
@@ -51,6 +56,16 @@ export interface IPesticideInformation {
     companyInformation: IChemicalCompanyInformation;
     pesticideTypes: string[];
 };
+
+export interface IRegisteredPesticideSummary {
+    epaRegistrationNumber: string;
+    productName: string;
+    productStatus: string;
+    signalWord: string;
+    formulations: string[];
+    activeIngredients: IActiveIngredientSummary[];
+    companyName: string;
+}
 
 export interface IPesticidePdf {
     epaRegistrationNumber: string;
