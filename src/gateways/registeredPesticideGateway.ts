@@ -1,11 +1,11 @@
 import AWS from "aws-sdk";
 import dayjs from "dayjs";
-import { IActiveIngredientSummary, IPesticideInformation, IRegisteredPesticideSummary } from "../entities/chemical";
+import { IActiveIngredientSummary, IChemicalCompanyRecordSummary, IPesticideInformation, IRegisteredPesticideSummary } from "../entities/chemical";
 
 export interface IRegisteredPesticideGateway {
     addRegisteredPesticideFromFile(pesticide: IPesticideInformation): Promise<void>;
     getRegisteredPesticidesByCompany(epaNumber: string, productName: string): Promise<any>;
-    createPesticideCompanyRecord(companies: string[]): Promise<void>;
+    createPesticideCompanyRecord(companies: IChemicalCompanyRecordSummary[]): Promise<void>;
     createRegisteredPesticideSummary(pesticide: IPesticideInformation): Promise<void>;
 };
 
@@ -62,7 +62,7 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
     }
 
     //should only be used when adding new companies to database or setting up new environment
-    async createPesticideCompanyRecord(companies: string[]): Promise<void> {
+    async createPesticideCompanyRecord(companies: IChemicalCompanyRecordSummary[]): Promise<void> {
         const params = {
             Item: {
                 pk: 'registeredPesticide:companies',

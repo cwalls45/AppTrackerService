@@ -95,3 +95,8 @@ export interface IChemicalCompanyInformation {
     zipCode: string;
     companyNumber: string;
 }
+
+export interface IChemicalCompanyRecordSummary {
+    companyName: string;
+    companyNumber: string;
+}

@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { RegisteredPesticideGateway } from '../../gateways/registeredPesticideGateway';
+import { IChemicalCompanyRecordSummary } from '../../entities/chemical';
 
 const addCompaniesToCompanyRecord = async (req: Request, res: Response) => {
     const registeredPesticideGateway = new RegisteredPesticideGateway();
-    const { companies }: { companies: string[] } = req.body;
+    const { companies }: { companies: IChemicalCompanyRecordSummary[] } = req.body;
 
     try {
         await registeredPesticideGateway.createPesticideCompanyRecord(companies);
