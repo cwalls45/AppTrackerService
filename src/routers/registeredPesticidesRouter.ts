@@ -3,6 +3,7 @@ import createRegisteredPesticideFromFile from "../controllers/registeredPesticid
 import getRegisteredPesticidesByCompany from "../controllers/registeredPesticides/getRegisteredPesticideByCompany";
 import addCompaniesToCompanyRecord from "../controllers/registeredPesticides/addCompaniesToCompanyRecord";
 import createRegisteredPesticideSummary from "../controllers/registeredPesticides/createRegisteredPesticideSummary";
+import getRegisteredPesticideBySummaries from "../controllers/registeredPesticides/getRegisteredPesticideSummaries";
 
 const registeredPesticidesRouter = express.Router();
 
@@ -13,5 +14,8 @@ registeredPesticidesRouter.get('/getPesticides/company/:companyName', getRegiste
 registeredPesticidesRouter.post('/addCompanies', addCompaniesToCompanyRecord);
 
 registeredPesticidesRouter.post('/registeredPesticideSummary', createRegisteredPesticideSummary);
+
+registeredPesticidesRouter.get('/registeredPesticideSummary/:epaNumber', getRegisteredPesticideBySummaries);
+
 
 export default registeredPesticidesRouter;

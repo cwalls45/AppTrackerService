@@ -7,6 +7,7 @@ export interface IRegisteredPesticideGateway {
     getRegisteredPesticidesByCompany(epaNumber: string, productName: string): Promise<any>;
     createPesticideCompanyRecord(companies: IChemicalCompanyRecordSummary[]): Promise<void>;
     createRegisteredPesticideSummary(pesticide: IPesticideInformation): Promise<void>;
+    getRegisteredPesticideSummaries(key: string): Promise<any>;
 };
 
 export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
@@ -98,7 +99,8 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
         const activeIngredientSummaries: IActiveIngredientSummary[] = activeIngredients.map((ingredient) => ({
             active_ing: ingredient.active_ing,
             active_ing_percent: ingredient.active_ing_percent
-        } || null))
+        } || null));
+
         const data: IRegisteredPesticideSummary = {
             epaRegistrationNumber,
             productName,
@@ -127,6 +129,31 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
         } catch (error) {
             console.log(`Error occured creating Registered Pesticide Summary: ${error}`);
             throw new Error(`Error occured creating Registered Pesticide Summary: ${error}`);
+        }
+    }
+
+    async getRegisteredPesticideSummaries(key: string): Promise<any> {
+        const params = {
+            KeyConditionExpression: 'pk = :pk and begins_with(sk, :prefix)',
+            ExpressionAttributeValues: {
+                ':pk': 'registeredPesticideSummary',
+                ':prefix': `registeredPesticideSummary:${key}`,
+            },
+            //TODO: make table name dynamic based on environment
+            TableName: 'TurfTracker-RegisteredPesticides-dev',
+        }
+
+        try {
+            const response = await this.dynamoDb.query(params).promise();
+            console.log(`RegisteredPesticideGateway - Registered Pesticides Summaries fetched: ${JSON.stringify(response, null, 2)}`);
+
+            return response.Items?.map(res => ({
+                ...res.data
+            }));
+
+        } catch (error) {
+            console.log(`Error occured in fetching Registered Pesticides Summaries: ${error}`)
+            throw new Error(`Error occured in fetching Registered Pesticides Summaries: ${error}`);
         }
     }
 }
