@@ -3,3 +3,4 @@ node_modules
 /.dynamodb
 .serverless
 scripts/business/playbooks
+scripts/business/pesticides/data

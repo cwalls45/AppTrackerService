@@ -1,48 +1,111 @@
 import fs from 'fs/promises';
-import { IPlaybooksChemicalsList } from '../playbooks/sortChemicalsIntoFertAndPesticide';
 import axios from 'axios';
+import { isEmpty } from 'lodash';
+import { CsvPesticideData, IActiveIngredient, IChemicalCompanyInformation, IPesticideInformation, IPesticidePdf } from '../../../src/entities/chemical';
 
-const onlyContainsNumbersOrHyphens = /^[\d-]+$/;
+// npx ts-node scripts/business/pesticides/createPesticideDataList.ts
 
-function main() {
-    return createPesticideList().then((pesticides) => pesticides);
+async function main() {
+    const unParsedPesticides = await fs.readFile('./scripts/business/playbooks/lists/csvPesticides.json');
+    const parsedPesticideList: CsvPesticideData[] = JSON.parse(unParsedPesticides.toString());
+    return await createPesticideList(parsedPesticideList);
 }
 
-async function createPesticideList() {
-    const unParsedPesticides = await fs.readFile('./scripts/business/playbooks/lists/pesticidesFromPlaybooks.json');
-    const parsedPesticideList: IPlaybooksChemicalsList[] = JSON.parse(unParsedPesticides.toString());
-    const epaNumbers = getEPANumber(parsedPesticideList);
-    const epaPromises = epaNumbers.map(async (epaNumber) => {
-        return await createPromises(epaNumber);
-    });
-    const pesticides = await Promise.all([epaPromises[0], epaPromises[1]]);
-    return pesticides;
+async function createPesticideList(parsedPesticideList: CsvPesticideData[]) {
+
+    const pesticideList: IPesticideInformation[] = [];
+    const erroredPesticideList: CsvPesticideData[] = []
+
+    for (const record of parsedPesticideList) {
+        try {
+            const mainResult = await axios.get(`https://ordspub.epa.gov/ords/pesticides/ppls/${record.epaRegistrationNumber}`);
+
+            console.log('DATA: ', mainResult.data.items[0]);
+
+            if (isEmpty(mainResult.data.items)) {
+                throw new Error(`Could not find pesticide: ${record.epaRegistrationNumber}`);
+            };
+
+            const formulations: string[] = mainResult.data.items[0].formulations
+                .map((formulation: { formulation: string }) => formulation.formulation)
+
+            const activeIngredients: IActiveIngredient[] = mainResult.data.items[0].active_ingredients
+                .map((activeIngredient: IActiveIngredient) => activeIngredient);
+
+            const alternateBrandNames: string[] = mainResult.data.items[0].altbrandnames
+                .map((alternateBrand: { altbrandname: string }) => alternateBrand.altbrandname);
+
+            const inactiveBrandNames: string[] = mainResult.data.items[0].inactive_brand_names
+                .map((inactiveBrand: { inactive_brand_name: string }) => inactiveBrand.inactive_brand_name)
+
+            const approvedSites: string[] = mainResult.data.items[0].sites
+                .map((site: { site: string }) => site.site);
+
+            const approvedPests: string[] = mainResult.data.items[0].pests
+                .map((pest: { pest: string }) => pest.pest);
+
+            const pdfFiles: IPesticidePdf[] = mainResult.data.items[0].pdffiles
+                .map((file:
+                    {
+                        epa_reg_num: string;
+                        pdffile: string;
+                        pdffile_accepted_date: string;
+                    }) => ({
+                        epaRegistrationNumber: file.epa_reg_num,
+                        pdfFile: file.pdffile,
+                        pdfFileAcceptedDate: file.pdffile_accepted_date
+                    })
+                );
+
+            const companyInformation: IChemicalCompanyInformation = {
+                companyName: record.companyName,
+                contactPerson: mainResult.data.items[0].companyinfo[0].contact_person,
+                phoneNumber: mainResult.data.items[0].companyinfo[0].phone,
+                email: mainResult.data.items[0].companyinfo[0].email,
+                street: mainResult.data.items[0].companyinfo[0].street,
+                city: mainResult.data.items[0].companyinfo[0].city,
+                state: mainResult.data.items[0].companyinfo[0].state,
+                zipCode: mainResult.data.items[0].companyinfo[0].zip_code,
+                companyNumber: record.companyNumber,
+            };
+
+            const pesticideTypes: string[] = mainResult.data.items[0].types
+                .map((type: { type: string }) => type.type);
+
+            const pesticideInfo: IPesticideInformation = {
+                epaRegistrationNumber: record.epaRegistrationNumber,
+                productName: record.productName,
+                productStatus: mainResult.data.items[0].product_status,
+                signalWord: mainResult.data.items[0].signal_word,
+                formulations,
+                activeIngredients,
+                inactiveBrandNames,
+                alternateBrandNames,
+                pdfFiles,
+                approvedSites,
+                approvedPests,
+                companyInformation,
+                pesticideTypes
+            };
+
+            pesticideList.push(pesticideInfo);
+
+        } catch (error) {
+            console.log('ERROR making query: ', error);
+            erroredPesticideList.push(record);
+        }
+
+        await delay(150);
+    }
+
+    await fs.appendFile('./scripts/business/pesticides/data/erroredPesticides.json', JSON.stringify(erroredPesticideList, null, 1));
+    await fs.appendFile('./scripts/business/pesticides/data/pesticideList.json', JSON.stringify(pesticideList, null, 1));
 }
 
-function getEPANumber(list: IPlaybooksChemicalsList[]): string[] {
-    const itemsWithEPANumber = list.filter(item => {
-        const epaNumber = getSubstring(item.Text, '(', ')').trim();
-        return onlyContainsNumbersOrHyphens.test(epaNumber) && epaNumber.length > 2
-    });
-    return [...new Set(itemsWithEPANumber.map(item => getSubstring(item.Text, '(', ')').trim()))];
+function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getSubstring(string: string, char1: string, char2: string) {
-    return string.slice(
-        string.indexOf(char1) + 1,
-        string.lastIndexOf(char2),
-    );
-}
-
-function createEPAQueryUrl(epaNumber: string) {
-    return `https://ordspub.epa.gov/ords/pesticides/ppls/${epaNumber}`
-};
-
-async function createPromises(epaNumber: string) {
-    const queryString = createEPAQueryUrl(epaNumber);
-    return await axios.get(queryString);
-};
-
-main().then((result) => console.log('Result: ', result)).catch((err) => {
-    console.log('ERROR: ', err);
-});
+main()
+    .then(() => console.log('Completed'))
+    .catch((err) => console.log('ERROR: ', err));

@@ -5,6 +5,7 @@ import authRouter from './routers/authRouter';
 import AWS from 'aws-sdk';
 import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc";
+import registeredPesticidesRouter from './routers/registeredPesticidesRouter';
 const serverless = require('serverless-http');
 const cors = require('cors');
 
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/auth', authRouter);
 
 // Route Handlers
+app.use('/registeredPesticides', registeredPesticidesRouter);
 app.use('/api', router);
 
 //Default Error Handler
