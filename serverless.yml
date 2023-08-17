@@ -40,13 +40,24 @@ provider:
             - cognito-idp:AdminCreateUser
             - cognito-idp:AdminSetUserPassword
           Resource: "*" #make specific
+  httpApi:
+    authorizers:
+      customAuthorizer:
+        type: request
+        functionName: authorizerFunction
 
 # functions
 functions:
   api:
     handler: src/index.handler
     events: # The events that trigger this function
-      - httpApi: '*'
+      - httpApi:
+          path: '/'
+          method: '*'
+          authorizer:
+            name: customAuthorizer
+  authorizerFunction:
+    handler: src/authorizer/authorizer.handler
 
 custom:
   dynamodb:
