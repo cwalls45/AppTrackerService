@@ -1,15 +1,28 @@
+enum AllowedPaths {
+    AUTH = '/auth'
+};
+
+const allowedPaths = Object.values(AllowedPaths);
+
 exports.handler = async (event: any) => {
     console.log('event:', event)
 
-    const tokenId = event.headers &&
-        (event.headers['X-Amz-Security-Token'] || event.headers['x-amz-Security-token']) ||
+    const isPathWhiteListed = allowedPaths.findIndex(path => event.requestContext.http.path.includes(path)) > -1;
+
+    console.log('isPathWhiteListed: ', isPathWhiteListed)
+    if (isPathWhiteListed) {
+        return generatePolicy({ allow: true });
+    }
+
+    const token = event.headers &&
+        (event.headers['X-Amz-Security-Token'] || event.headers['x-amz-security-token']) ||
         event.authorizationToken;
 
-    if (!tokenId) {
+    if (!token) {
         console.log('No Token ID')
         return generatePolicy({ allow: false })
     }
-    console.log('TokenId: ', tokenId)
+    console.log('TokenId: ', token)
     return generatePolicy({ allow: true })
 }
 

@@ -52,7 +52,7 @@ functions:
     handler: src/index.handler
     events: # The events that trigger this function
       - httpApi:
-          path: '/'
+          path: /{proxy+}
           method: '*'
           authorizer:
             name: customAuthorizer
