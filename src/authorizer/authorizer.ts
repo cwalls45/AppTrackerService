@@ -1,8 +1,12 @@
+import { CognitoGateway } from "../gateways/cognitoGateway";
+
 enum AllowedPaths {
     AUTH = '/auth'
 };
 
 const allowedPaths = Object.values(AllowedPaths);
+
+const cognitoGateway = new CognitoGateway();
 
 exports.handler = async (event: any) => {
     console.log('event:', event)
@@ -17,9 +21,14 @@ exports.handler = async (event: any) => {
     const token = event.headers &&
         (event.headers['X-Amz-Security-Token'] || event.headers['x-amz-security-token']) ||
         event.authorizationToken;
-
     if (!token) {
-        console.log('No Token ID')
+        console.log('Authorizer - No Token ID')
+        return generatePolicy({ allow: false })
+    }
+
+    const isUserLoggedIn = await cognitoGateway.isUserAuthenticated(token);
+    if (!isUserLoggedIn) {
+        console.log('Authorizer - User not logged in')
         return generatePolicy({ allow: false })
     }
     console.log('TokenId: ', token)

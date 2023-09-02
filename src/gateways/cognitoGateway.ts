@@ -8,6 +8,7 @@ export interface ICognitoGateway {
     signUpUser(user: ISignUp): Promise<UserType | undefined>
     login(user: ISignUp): Promise<AWS.CognitoIdentityServiceProvider.AdminInitiateAuthResponse | AWS.AWSError>;
     getUserEmailByToken(token: string): Promise<PromiseResult<AWS.CognitoIdentityServiceProvider.GetUserResponse, AWS.AWSError>>;
+    isUserAuthenticated(token: string): Promise<boolean>;
 }
 
 export class CognitoGateway implements ICognitoGateway {
@@ -51,7 +52,7 @@ export class CognitoGateway implements ICognitoGateway {
             return userName.User;
 
         } catch (error) {
-            console.log(`Error occured in creating user: ${JSON.stringify(error, null, 2)}, ${JSON.stringify(user, null, 2)}`)
+            console.log(`CognitoGateway - Error occured in creating user: ${JSON.stringify(error, null, 2)}, ${JSON.stringify(user, null, 2)}`)
             throw new Error(`Error occured in creating user: ${JSON.stringify(error, null, 2)}, ${JSON.stringify(user, null, 2)}`);
         }
     }
@@ -82,7 +83,7 @@ export class CognitoGateway implements ICognitoGateway {
             return loggedInUser;
 
         } catch (error) {
-            console.log(`Error occured while logging in user: ${JSON.stringify(error, null, 2)}`)
+            console.log(`CognitoGateway - Error occured while logging in user: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured while logging in user: ${JSON.stringify(error, null, 2)}`);
         }
     }
@@ -97,8 +98,23 @@ export class CognitoGateway implements ICognitoGateway {
 
             return user;
         } catch (error) {
-            console.log(`Error occured while getting user by access token: ${JSON.stringify(error, null, 2)}`)
+            console.log(`CognitoGateway - Error occured while getting user by access token: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured while getting user by access token: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async isUserAuthenticated(token: string): Promise<boolean> {
+        const params: GetUserRequest = {
+            AccessToken: token
+        }
+
+        try {
+            const user = await this.cognito.getUser(params).promise();
+            console.log(`CognitoGateway - ${user}`)
+            return !!user;
+        } catch (error) {
+            console.log(`CognitoGateway - ${error}`)
+            return false
         }
     }
 }
