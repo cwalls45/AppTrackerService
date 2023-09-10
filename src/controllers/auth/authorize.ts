@@ -27,7 +27,7 @@ const authorize = async (req: Request, res: Response, next: NextFunction) => {
             res.status(403).end()
         }
 
-        next();
+        return next();
 
     } catch (error) {
 
