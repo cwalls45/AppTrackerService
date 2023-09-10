@@ -41,8 +41,19 @@ provider:
             - cognito-idp:AdminSetUserPassword
           Resource: "*" #make specific
   httpApi:
+    cors:
+      allowedOrigins:
+        - 'http://localhost:8080'
+      allowedHeaders:
+        - Content-Type
+        - X-Amz-Date
+        - Authorization
+        - X-Api-Key
+        - X-Amz-Security-Token
+        - X-Amz-User-Agent
+      allowCredentials: true
     authorizers:
-      customAuthorizer:
+      customAuthorizerFunc:
         type: request
         functionName: authorizerFunction
 
@@ -54,8 +65,8 @@ functions:
       - httpApi:
           path: /{proxy+}
           method: '*'
-          authorizer:
-            name: customAuthorizer
+          # authorizer:
+          #   name: customAuthorizerFunc
   authorizerFunction:
     handler: src/authorizer/authorizer.handler
 
