@@ -6,6 +6,7 @@ import AWS from 'aws-sdk';
 import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc";
 import registeredPesticidesRouter from './routers/registeredPesticidesRouter';
+import authorize from './controllers/auth/authorize';
 const serverless = require('serverless-http');
 const cors = require('cors');
 
@@ -21,6 +22,8 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(authorize);
 
 app.use('/auth', authRouter);
 

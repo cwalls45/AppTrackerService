@@ -40,13 +40,35 @@ provider:
             - cognito-idp:AdminCreateUser
             - cognito-idp:AdminSetUserPassword
           Resource: "*" #make specific
+  httpApi:
+    cors:
+      allowedOrigins:
+        - 'http://localhost:8080'
+      allowedHeaders:
+        - Content-Type
+        - X-Amz-Date
+        - Authorization
+        - X-Api-Key
+        - X-Amz-Security-Token
+        - X-Amz-User-Agent
+      allowCredentials: true
+    authorizers:
+      customAuthorizerFunc:
+        type: request
+        functionName: authorizerFunction
 
 # functions
 functions:
   api:
     handler: src/index.handler
     events: # The events that trigger this function
-      - httpApi: '*'
+      - httpApi:
+          path: /{proxy+}
+          method: '*'
+          # authorizer:
+          #   name: customAuthorizerFunc
+  authorizerFunction:
+    handler: src/authorizer/authorizer.handler
 
 custom:
   dynamodb:
