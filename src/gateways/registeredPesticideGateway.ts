@@ -8,6 +8,7 @@ export interface IRegisteredPesticideGateway {
     createPesticideCompanyRecord(companies: IChemicalCompanyRecordSummary[]): Promise<void>;
     createRegisteredPesticideSummary(pesticide: IPesticideInformation): Promise<void>;
     getRegisteredPesticideSummaries(key: string): Promise<any>;
+    getCompaniesRecord(): Promise<any>
 };
 
 export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
@@ -154,6 +155,31 @@ export class RegisteredPesticideGateway implements IRegisteredPesticideGateway {
         } catch (error) {
             console.log(`Error occured in fetching Registered Pesticides Summaries: ${error}`)
             throw new Error(`Error occured in fetching Registered Pesticides Summaries: ${error}`);
+        }
+    }
+
+    async getCompaniesRecord(): Promise<any> {
+        const params = {
+            KeyConditionExpression: 'pk = :pk and begins_with(sk, :prefix)',
+            ExpressionAttributeValues: {
+                ':pk': 'registeredPesticide:companies',
+                ':prefix': `registeredPesticide:companies`,
+            },
+            //TODO: make table name dynamic based on environment
+            TableName: 'TurfTracker-RegisteredPesticides-dev',
+        }
+
+        try {
+            const response = await this.dynamoDb.query(params).promise();
+            console.log(`RegisteredPesticideGateway - Registered Pesticides Companies fetched: ${JSON.stringify(response, null, 2)}`);
+
+            return response.Items?.map(res => ({
+                ...res.data
+            }));
+
+        } catch (error) {
+            console.log(`Error occured in fetching Registered Pesticides Companies: ${error}`)
+            throw new Error(`Error occured in fetching Registered Pesticides Companies: ${error}`);
         }
     }
 }
