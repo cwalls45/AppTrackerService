@@ -5,6 +5,7 @@ import addCourseInfo from "../controllers/auth/addCourseInfo";
 import addCourseAreas from "../controllers/auth/addCourseAreas";
 import getUser from "../controllers/auth/getUser";
 import getUserByToken from "../controllers/auth/getUserByToken";
+import signOut from "../controllers/auth/signOut";
 
 const authRouter = express.Router();
 
@@ -19,5 +20,7 @@ authRouter.get('/user/:email', getUser);
 authRouter.get('/user/token/:accessToken', getUserByToken);
 
 authRouter.post('/login', login);
+
+authRouter.post('/signOut', signOut);
 
 export default authRouter;
