@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import CognitoIdentityServiceProvider, { GetUserRequest, RevokeTokenResponse, UserType } from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import { GetUserRequest, GlobalSignOutRequest, GlobalSignOutResponse, UserType } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { ISignUp } from '../entities/auth';
 import { USER_POOL, USER_POOL_CLIENT } from '../environment/path';
@@ -9,7 +9,7 @@ export interface ICognitoGateway {
     login(user: ISignUp): Promise<AWS.CognitoIdentityServiceProvider.AdminInitiateAuthResponse | AWS.AWSError>;
     getUserEmailByToken(token: string): Promise<PromiseResult<AWS.CognitoIdentityServiceProvider.GetUserResponse, AWS.AWSError>>;
     isUserAuthenticated(token: string): Promise<boolean>;
-    signOut(token: string): Promise<PromiseResult<RevokeTokenResponse, AWS.AWSError>>;
+    signOut(token: string): Promise<PromiseResult<GlobalSignOutResponse, AWS.AWSError>>;
 }
 
 export class CognitoGateway implements ICognitoGateway {
@@ -119,21 +119,13 @@ export class CognitoGateway implements ICognitoGateway {
         }
     }
 
-    async signOut(token: string): Promise<PromiseResult<RevokeTokenResponse, AWS.AWSError>> {
-        const params: GetUserRequest = {
+    async signOut(token: string): Promise<PromiseResult<GlobalSignOutResponse, AWS.AWSError>> {
+        const params: GlobalSignOutRequest = {
             AccessToken: token
         };
 
         try {
-            const user = await this.cognito.getUser(params).promise();
-            const clientId = user.UserAttributes?.find(attribute => attribute.Name === 'sub')?.Value!;
-
-            const signOutParams: CognitoIdentityServiceProvider.Types.RevokeTokenRequest = {
-                Token: token,
-                ClientId: clientId
-            };
-
-            return await this.cognito.revokeToken(signOutParams).promise();
+            return await this.cognito.globalSignOut(params).promise();
         } catch (error) {
             console.log(`CognitoGateway - There was an error while signing out: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`There was an error while signing out.`);
