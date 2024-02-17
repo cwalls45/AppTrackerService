@@ -4,3 +4,4 @@ node_modules
 .serverless
 scripts/business/playbooks
 scripts/business/pesticides/data
+.env

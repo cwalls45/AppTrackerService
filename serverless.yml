@@ -2,6 +2,7 @@ service: TurfTrackerService
 
 # Serverless plugins
 plugins:
+  - serverless-dotenv-plugin
   - serverless-dynamodb-local
   - serverless-plugin-typescript
   - serverless-offline
