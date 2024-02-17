@@ -1,23 +1,29 @@
+import Stripe from 'stripe';
+import { STRIPE_SECRET_KEY } from '../environment/path';
+
 export interface IStripeGateway {
     createPaymentIntent(): Promise<any>
 }
 
 export class StripeGateway implements IStripeGateway {
 
-    private stripe = require("stripe")(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: "2022-08-01",
+    private stripe: Stripe = new Stripe(STRIPE_SECRET_KEY, {
+        apiVersion: '2023-10-16',
+        typescript: true
     });
 
     async createPaymentIntent(): Promise<any> {
+        const price = 100;
+
         try {
             const paymentIntent = await this.stripe.paymentIntents.create({
-                amount: 10000,
-                currency: 'usd',
-                metadata: { integration_check: 'accept_a_payment' },
+                amount: price * 100,
+                currency: 'USD'
             });
-            return paymentIntent;
+
+            return paymentIntent.client_secret;
         } catch (error) {
-            console.log(`StripeGateway - Error occured in creating payment intent: ${JSON.stringify(error, null, 2)}`)
+            console.log(`StripeGateway - Error occured in creating payment intent: ${error}`)
             throw new Error(`Error occured in creating payment intent: ${JSON.stringify(error, null, 2)}`);
         }
     }
