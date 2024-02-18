@@ -24,6 +24,4 @@ authRouter.post('/login', login);
 
 authRouter.post('/signOut', signOut);
 
-authRouter.get('/stripe/config', getStripePublishableKey)
-
 export default authRouter;

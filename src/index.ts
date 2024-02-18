@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc";
 import registeredPesticidesRouter from './routers/registeredPesticidesRouter';
 import authorize from './controllers/auth/authorize';
+import subscribeRouter from './routers/subscribeRouter';
 const serverless = require('serverless-http');
 const cors = require('cors');
 
@@ -28,6 +29,7 @@ app.use(authorize);
 app.use('/auth', authRouter);
 
 // Route Handlers
+app.use('/subscribe', subscribeRouter)
 app.use('/registeredPesticides', registeredPesticidesRouter);
 app.use('/api', router);
 

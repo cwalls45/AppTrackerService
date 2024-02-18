@@ -1,8 +1,8 @@
 import Stripe from 'stripe';
-import { STRIPE_SECRET_KEY } from '../environment/path';
+import { STRIPE_SECRET_KEY } from '../environment/stripeApiKeys';
 
 export interface IStripeGateway {
-    createPaymentIntent(): Promise<any>
+    createPaymentIntent(): Promise<string | null>
 }
 
 export class StripeGateway implements IStripeGateway {
@@ -12,7 +12,7 @@ export class StripeGateway implements IStripeGateway {
         typescript: true
     });
 
-    async createPaymentIntent(): Promise<any> {
+    async createPaymentIntent() {
         const price = 100;
 
         try {
@@ -23,8 +23,8 @@ export class StripeGateway implements IStripeGateway {
 
             return paymentIntent.client_secret;
         } catch (error) {
-            console.log(`StripeGateway - Error occured in creating payment intent: ${error}`)
-            throw new Error(`Error occured in creating payment intent: ${JSON.stringify(error, null, 2)}`);
+            console.log(`StripeGateway - Error occurred in creating payment intent: ${error}`)
+            throw new Error(`Error occurred in creating payment intent: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }

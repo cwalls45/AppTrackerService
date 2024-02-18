@@ -1,10 +1,8 @@
 import { Request, Response } from 'express';
-import { STRIPE_PUBLISHABLE_KEY } from '../../environment/path';
+import { STRIPE_PUBLISHABLE_KEY } from '../../environment/stripeApiKeys';
 
 const getStripePublishableKey = async (req: Request, res: Response) => {
     try {
-        console.log('Getting Stripe publishable key', process.env.STRIPE_PUBLISHABLE_KEY);
-        console.log('Getting Stripe publishable key variable', STRIPE_PUBLISHABLE_KEY)
         res.send({ publishableKey: STRIPE_PUBLISHABLE_KEY });
     } catch (error) {
         console.log('ERROR getting Stripe publishable key: ', JSON.stringify(error, null, 2));
