@@ -6,6 +6,6 @@ const authRouter = express.Router();
 
 authRouter.get('/stripe-config', getStripePublishableKey);
 
-authRouter.post('payment-intent', createPaymentIntent)
+authRouter.post('/payment-intent', createPaymentIntent)
 
 export default authRouter;
