@@ -7,7 +7,6 @@ const authorize = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
         const isPathWhiteListed = allowedPaths.findIndex(path => req.url.includes(path)) > -1;
-        console.log('isPathWhiteListed:', isPathWhiteListed)
 
         if (isPathWhiteListed) {
             return next();

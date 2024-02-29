@@ -6,7 +6,6 @@ import addCourseAreas from "../controllers/auth/addCourseAreas";
 import getUser from "../controllers/auth/getUser";
 import getUserByToken from "../controllers/auth/getUserByToken";
 import signOut from "../controllers/auth/signOut";
-import getStripePublishableKey from "../controllers/payment/getStripePublishableKey";
 
 const authRouter = express.Router();
 
