@@ -1,10 +1,10 @@
 import AWS from "aws-sdk";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from 'uuid'
-import { ICourseArea, ICourseInfo } from "../entities/account";
+import { IAccount, ICourseArea, ICourseInfo } from "../entities/account";
 
 export interface ISignUpGateway {
-    getAccountRecordByAccountId(accountId: string): Promise<any>;
+    getAccountRecordByAccountId(accountId: string): Promise<IAccount>;
     getAccountRecordByEmail(accountId: string): Promise<any>;
     createShellAccount(firstName: string, lastName: string, email: string): Promise<any>;
     addCourseInfo(courseInfo: ICourseInfo, accountId: string, email: string): Promise<ICourseInfo>;
@@ -17,7 +17,7 @@ export class SignUpGateway implements ISignUpGateway {
 
     constructor() { }
 
-    async getAccountRecordByAccountId(accountId: string): Promise<any> {
+    async getAccountRecordByAccountId(accountId: string): Promise<IAccount> {
 
         const params = {
             Key: {
@@ -31,7 +31,7 @@ export class SignUpGateway implements ISignUpGateway {
         try {
             const accountRecord = await this.dynamoDb.get(params).promise();
             //Todo: find way return Item.data with correct type
-            return accountRecord.Item;
+            return accountRecord.Item?.data as IAccount;
         } catch (error) {
             console.log(`Error occured while getting account record: ${JSON.stringify(error, null, 2)}`)
             throw new Error(`Error occured while getting account record: ${JSON.stringify(error, null, 2)}`);
@@ -121,7 +121,7 @@ export class SignUpGateway implements ISignUpGateway {
             const accountRecords = await this.getAccountRecordByAccountId(accountId);
 
             const data = {
-                ...accountRecords.data,
+                ...accountRecords,
                 courseInfo
             }
             //TODO: refactor batch write to helper function so it can be reused
@@ -170,7 +170,7 @@ export class SignUpGateway implements ISignUpGateway {
             const accountRecords = await this.getAccountRecordByAccountId(accountId);
 
             const data = {
-                ...accountRecords.data,
+                ...accountRecords,
                 courseAreas
             }
             //TODO: refactor batch write to helper function so it can be reused
