@@ -6,6 +6,7 @@ import { subscriptionSucessfullUrl } from '../environment/path';
 export interface IStripeGateway {
     createCheckoutSession(): Promise<Stripe.Response<Stripe.Checkout.Session>>;
     createCustomer(account: IAccount): Promise<void>;
+    fetchCheckoutSession(sessionId: string): Promise<Stripe.Response<Stripe.Checkout.Session>>;
 }
 
 export class StripeGateway implements IStripeGateway {
@@ -51,13 +52,23 @@ export class StripeGateway implements IStripeGateway {
                     },
                 ],
                 ui_mode: 'embedded',
-                return_url: subscriptionSucessfullUrl,
+                return_url: subscriptionSucessfullUrl
             });
 
             return session;
         } catch (error) {
             console.log(`StripeGateway - Error occurred while creating a checkout session: ${error}`)
             throw new Error(`Error occurred while creating a checkout session: ${JSON.stringify(error, null, 2)}`);
+        }
+    }
+
+    async fetchCheckoutSession(sessionId: string) {
+        try {
+            const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+            return session;
+        } catch (error) {
+            console.log(`StripeGateway - Error occurred while fetching a checkout session: ${error}`)
+            throw new Error(`Error occurred while fetching a checkout session: ${JSON.stringify(error, null, 2)}`);
         }
     }
 }
