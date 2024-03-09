@@ -17,13 +17,13 @@ const authorize = async (req: Request, res: Response, next: NextFunction) => {
 
         if (!token) {
             console.log('Authorizer - No Token ID')
-            res.status(403).end()
+            res.status(403).end();
         }
 
         const isUserLoggedIn = await cognitoGateway.isUserAuthenticated(token);
         if (!isUserLoggedIn) {
             console.log('Authorizer - User not logged in')
-            res.status(403).end()
+            res.status(403).end();
         }
 
         return next();

@@ -14,9 +14,11 @@ const createApplication = async (req: Request, res: Response) => {
         application = { id, ...application };
     }
 
-    validate(application);
+    const validationResult = validate(application);
+    if (validationResult.error) {
+        return res.status(400).json({ error: validationResult.error.details[0].message });
+    }
 
-    //TODO: add application event and application details to database once set up
     await applicationEventGateway.createApplication(application, accountId);
     const applicationEventResponse = await applicationEventGateway.createApplicationEvent(application, accountId);
 
@@ -39,11 +41,7 @@ const schema = Joi.object({
 });
 
 const validate = (application: IApplication) => {
-    const { error } = schema.validate(application);
-    console.log('VALIDATE')
-    if (error) {
-        throw new Error(`Unable to validate properties of application: ${error}`);
-    };
+    return schema.validate(application);
 }
 
 export default createApplication;
